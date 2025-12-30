@@ -7,12 +7,14 @@ import io.sgalluz.k2d.ecs.systems.MovementSystem
 import io.sgalluz.k2d.rendering.K2DCanvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import io.sgalluz.k2d.ecs.systems.BoundarySystem
 
 fun main() = application {
     // 1. Initialize the World and Systems
     val world = remember {
         World().apply {
             addSystem(MovementSystem())
+            addSystem(BoundarySystem(width = 800f, height = 600f))
 
             // 2. Create our test entity using ECS
             createEntity()

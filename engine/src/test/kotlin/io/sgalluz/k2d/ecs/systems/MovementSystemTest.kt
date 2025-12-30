@@ -1,6 +1,8 @@
-package io.sgalluz.k2d.ecs
+package io.sgalluz.k2d.ecs.systems
 
-import io.sgalluz.k2d.ecs.systems.MovementSystem
+import io.sgalluz.k2d.ecs.Position
+import io.sgalluz.k2d.ecs.Velocity
+import io.sgalluz.k2d.ecs.World
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
