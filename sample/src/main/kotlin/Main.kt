@@ -1,36 +1,49 @@
-import androidx.compose.runtime.*
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import io.sgalluz.k2d.ecs.*
+import io.sgalluz.k2d.ecs.systems.MovementSystem
 import io.sgalluz.k2d.rendering.K2DCanvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import io.sgalluz.k2d.ecs.systems.BoundarySystem
 
 fun main() = application {
-    // State of our "player" (very rudimentary for now)
-    var posX by remember { mutableStateOf(100f) }
-    var posY by remember { mutableStateOf(100f) }
-    var speedX = 200f // pixel al secondo
-    var speedY = 150f
+    // 1. Initialize the World and Systems
+    val world = remember {
+        World().apply {
+            addSystem(MovementSystem())
+            addSystem(BoundarySystem(width = 800f, height = 600f))
 
-    Window(onCloseRequest = ::exitApplication, title = "K2D Engine - First Flight") {
+            // 2. Create our test entity using ECS
+            createEntity()
+                .add(Position(100f, 100f))
+                .add(Velocity(150f, 120f))
+                .add(Sprite(Color.Cyan, 50f))
+        }
+    }
+
+    Window(onCloseRequest = ::exitApplication, title = "K2D Engine - ECS in Action") {
         K2DCanvas(
-            onUpdate = { delta ->
-                // Time-based motion logic
-                posX += speedX * delta
-                posY += speedY * delta
-
-                // Simple edge bounce (hardcoded for now)
-                if (posX < 0f || posX > 600f) speedX *= -1
-                if (posY < 0f || posY > 400f) speedY *= -1
+            onUpdate = { deltaTime ->
+                // 3. The engine heartbeat now drives the World
+                world.update(deltaTime)
             },
             onRender = {
-                // Rendering of the square
-                drawRect(
-                    color = Color.Cyan,
-                    topLeft = Offset(posX, posY),
-                    size = Size(50f, 50f)
-                )
+                // 4. For now, we render manually, but soon we'll have a RenderSystem
+                world.getEntities().forEach { entity ->
+                    val pos = entity.get<Position>()
+                    val sprite = entity.get<Sprite>()
+
+                    if (pos != null && sprite != null) {
+                        drawRect(
+                            color = sprite.color,
+                            topLeft = Offset(pos.x, pos.y),
+                            size = Size(sprite.size, sprite.size)
+                        )
+                    }
+                }
             }
         )
     }
