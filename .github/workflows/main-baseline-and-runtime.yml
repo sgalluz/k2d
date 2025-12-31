@@ -1,0 +1,114 @@
+name: Update Baseline & Publish Coverage
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  baseline-and-runtime:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - run: chmod +x gradlew
+
+      # Single build
+      - name: Run tests & coverage
+        run: ./gradlew test jacocoRootReport
+
+      # ---------------------------
+      # Update baseline (POLICY)
+      # ---------------------------
+      - name: Update baseline file
+        run: |
+          XML=build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml
+
+          read () {
+            TYPE=$1
+            C=$(xmllint --xpath "string(//counter[@type='$TYPE']/@covered)" $XML)
+            M=$(xmllint --xpath "string(//counter[@type='$TYPE']/@missed)" $XML)
+            awk "BEGIN { printf \"%.2f\", ($C/($C+$M))*100 }"
+          }
+
+          LINE=$(read LINE)
+          BRANCH=$(read BRANCH)
+          FUNCTION=$(read METHOD)
+          TOTAL=$LINE
+
+          cat > coverage-baseline.json <<EOF
+          {
+            "total": $TOTAL,
+            "line": $LINE,
+            "branch": $BRANCH,
+            "function": $FUNCTION
+          }
+          EOF
+
+      - name: Commit baseline
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add coverage-baseline.json
+          git commit -m "chore: update coverage baseline" || echo "No changes"
+          git push
+
+      # ---------------------------
+      # Generate RUNTIME coverage JSON
+      # ---------------------------
+      - name: Generate runtime coverage JSON
+        run: |
+          OUT=.runtime-out/coverage
+          mkdir -p $OUT
+
+          XML=build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml
+
+          gen () {
+            NAME=$1
+            TYPE=$2
+
+            C=$(xmllint --xpath "string(//counter[@type='$TYPE']/@covered)" $XML)
+            M=$(xmllint --xpath "string(//counter[@type='$TYPE']/@missed)" $XML)
+            V=$(awk "BEGIN { printf \"%.2f\", ($C/($C+$M))*100 }")
+
+            COLOR="red"
+            (( $(echo "$V >= 90" | bc -l) )) && COLOR="green"
+            (( $(echo "$V >= 80 && $V < 90" | bc -l) )) && COLOR="yellowgreen"
+
+            cat > $OUT/$NAME.json <<EOF
+            {
+              "schemaVersion": 1,
+              "label": "Coverage $NAME",
+              "message": "$V%",
+              "color": "$COLOR"
+            }
+            EOF
+          }
+
+          gen total LINE
+          gen line LINE
+          gen branch BRANCH
+          gen function METHOD
+
+      # ---------------------------
+      # Publish to gh-pages
+      # ---------------------------
+      - name: Publish runtime JSON to gh-pages
+        run: |
+          git fetch origin gh-pages || true
+          git checkout --orphan gh-pages
+          git rm -rf .
+          cp -r .runtime-out/* .
+          touch .nojekyll
+          git add .
+          git commit -m "Update runtime coverage"
+          git push -f origin gh-pages
