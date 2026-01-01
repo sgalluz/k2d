@@ -24,54 +24,23 @@ jobs:
         with:
           xml: engine/build/reports/jacoco/test/jacocoTestReport.xml
 
-      - name: Generate coverage JSON
-        run: |
-          OUT=.runtime-out/coverage
-          mkdir -p "$OUT"
-          
-          jq -n \
-            --arg total "${{ steps.cov.outputs.total }}" \
-            --arg line "${{ steps.cov.outputs.line }}" \
-            --arg branch "${{ steps.cov.outputs.branch }}" \
-            --arg function "${{ steps.cov.outputs.function }}" \
-            '{
-              total: ($total | tonumber),
-              line: ($line | tonumber),
-              branch: ($branch | tonumber),
-              function: ($function | tonumber)
-            }' > "$OUT/baseline.json"
-          
-          gen_badge () {
-            NAME=$1
-            VAL=$2
-            COLOR=red
-            (( $(echo "$VAL >= 90" | bc -l) )) && COLOR=brightgreen
-            (( $(echo "$VAL >= 80 && $VAL < 90" | bc -l) )) && COLOR=yellowgreen
-          
-            jq -n \
-              --arg label "coverage $NAME" \
-              --arg msg "$VAL%" \
-              --arg color "$COLOR" \
-              '{
-                schemaVersion: 1,
-                label: $label,
-                message: $msg,
-                color: $color
-              }' > "$OUT/$NAME.json"
-          }
-          
-          gen_badge total "${{ steps.cov.outputs.total }}"
-          gen_badge line "${{ steps.cov.outputs.line }}"
-          gen_badge branch "${{ steps.cov.outputs.branch }}"
-          gen_badge function "${{ steps.cov.outputs.function }}"
+      - name: Build coverage.json + badge
+        uses: ./.github/actions/coverage-json
+        with:
+          total: ${{ steps.cov.outputs.total }}
+          line: ${{ steps.cov.outputs.line }}
+          branch: ${{ steps.cov.outputs.branch }}
+          function: ${{ steps.cov.outputs.function }}
 
       - name: Publish to gh-pages
         run: |
           git fetch origin gh-pages || true
           git checkout --orphan gh-pages
           git rm -rf .
+
           cp -r .runtime-out/* .
           touch .nojekyll
+
           git add .
           git commit -m "Update coverage data"
           git push -f origin gh-pages

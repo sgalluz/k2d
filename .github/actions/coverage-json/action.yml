@@ -1,0 +1,46 @@
+name: Generate coverage.json and badge
+description: Build coverage.json and total coverage badge
+inputs:
+  total: { required: true, description: 'total coverage from base branch' }
+  line: { required: true, description: 'lines coverage from base branch' }
+  branch: { required: true, description: 'branches coverage from base branch' }
+  function: { required: true, description: 'functions coverage from base branch' }
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        set -euo pipefail
+
+        OUT=.runtime-out/coverage
+        mkdir -p "$OUT"
+
+        # ---- coverage.json ----
+        jq -n \
+          --arg total "${{ inputs.total }}" \
+          --arg line "${{ inputs.line }}" \
+          --arg branch "${{ inputs.branch }}" \
+          --arg function "${{ inputs.function }}" \
+          '{
+            total: ($total | tonumber),
+            line: ($line | tonumber),
+            branch: ($branch | tonumber),
+            function: ($function | tonumber)
+          }' > "$OUT/coverage.json"
+
+        TOTAL="${{ inputs.total }}"
+        COLOR="red"
+
+        (( $(echo "$TOTAL >= 90" | bc -l) )) && COLOR="brightgreen"
+        (( $(echo "$TOTAL >= 80 && $TOTAL < 90" | bc -l) )) && COLOR="yellowgreen"
+
+        jq -n \
+          --arg msg "$(printf "%.2f%%" "$TOTAL")" \
+          --arg color "$COLOR" \
+          '{
+            schemaVersion: 1,
+            label: "coverage",
+            message: $msg,
+            color: $color
+          }' > "$OUT/badge.json"
