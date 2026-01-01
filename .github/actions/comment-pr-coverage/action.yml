@@ -52,7 +52,7 @@ runs:
           const body = `
           📊 **Code Coverage Report**
 
-          ${row("total","Total")}
+          ${row("total","Total (instructions)")}
           ${row("line","Lines")}
           ${row("branch","Branches")}
           ${row("func","Functions")}
