@@ -18,7 +18,10 @@ runs:
     - uses: actions/github-script@v7
       with:
         script: |
-          const hasBase = "${{ inputs.base-total }}" !== ""
+          const hasBase =
+            "${{ inputs.base-total }}" !== "" &&
+            "${{ inputs.base-total }}" !== "null" &&
+            "${{ inputs.base-total }}" !== "undefined"
 
           const cur = {
             total: parseFloat("${{ inputs.pr-total }}"),
@@ -38,10 +41,12 @@ runs:
           const trend = d => d >= 0 ? "🟢" : "🔴"
           const sign = d => d >= 0 ? "+" : ""
 
-          const row = (k, l) => {
-            if (!base) return `**${l}:** ${fmt(cur[k])}%`
+          const row = (k, label) => {
+            if (!base) {
+              return `**${label}:** ${fmt(cur[k])}%`
+            }
             const d = cur[k] - base[k]
-            return `**${l}:** ${fmt(cur[k])}% ${trend(d)} ${sign(d)}${fmt(d)}`
+            return `**${label}:** ${fmt(cur[k])}% ${trend(d)} ${sign(d)}${fmt(d)}`
           }
 
           const body = `
@@ -52,7 +57,7 @@ runs:
           ${row("branch","Branches")}
           ${row("func","Functions")}
 
-          ${hasBase ? "_Baseline: gh-pages_" : "_No baseline yet — first run_"}
+          ${ base ? "" : "No baseline yet — first coverage snapshot" }
           `
 
           const { data } = await github.rest.issues.listComments({
