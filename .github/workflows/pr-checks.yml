@@ -35,13 +35,13 @@ jobs:
       - uses: ./.github/actions/setup-gradle-env
 
       - name: Run tests & coverage
-        run: ./gradlew test jacocoRootReport
+        run: ./gradlew :engine:test :engine:jacocoTestReport
 
       - name: Extract PR coverage
         id: pr
         uses: ./.github/actions/extract-coverage
         with:
-          xml: build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml
+          xml: engine/build/reports/jacoco/test/jacocoTestReport.xml
 
       - name: Read baseline (if exists)
         id: base
