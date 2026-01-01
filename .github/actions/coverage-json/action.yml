@@ -16,7 +16,6 @@ runs:
         OUT=.runtime-out/coverage
         mkdir -p "$OUT"
 
-        # ---- coverage.json ----
         jq -n \
           --arg total "${{ inputs.total }}" \
           --arg line "${{ inputs.line }}" \
