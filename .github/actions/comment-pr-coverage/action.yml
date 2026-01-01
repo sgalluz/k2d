@@ -1,0 +1,77 @@
+name: Comment PR Coverage
+description: Comment or update PR with coverage comparison
+
+inputs:
+  pr-total: { required: true, description: 'total coverage from PR branch' }
+  pr-line: { required: true, description: 'lines coverage from PR branch' }
+  pr-branch: { required: true, description: 'branches coverage from PR branch' }
+  pr-function: { required: true, description: 'functions coverage from PR branch' }
+
+  base-total: { required: false, description: 'total coverage from base branch' }
+  base-line: { required: false, description: 'lines coverage from base branch' }
+  base-branch: { required: false, description: 'branches coverage from base branch' }
+  base-function: { required: false, description: 'functions coverage from base branch' }
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/github-script@v7
+      with:
+        script: |
+          const hasBase = "${{ inputs.base-total }}" !== ""
+
+          const cur = {
+            total: parseFloat("${{ inputs.pr-total }}"),
+            line: parseFloat("${{ inputs.pr-line }}"),
+            branch: parseFloat("${{ inputs.pr-branch }}"),
+            func: parseFloat("${{ inputs.pr-function }}")
+          }
+
+          const base = hasBase ? {
+            total: parseFloat("${{ inputs.base-total }}"),
+            line: parseFloat("${{ inputs.base-line }}"),
+            branch: parseFloat("${{ inputs.base-branch }}"),
+            func: parseFloat("${{ inputs.base-function }}")
+          } : null
+
+          const fmt = n => n.toFixed(2)
+          const trend = d => d >= 0 ? "🟢" : "🔴"
+          const sign = d => d >= 0 ? "+" : ""
+
+          const row = (k, l) => {
+            if (!base) return `**${l}:** ${fmt(cur[k])}%`
+            const d = cur[k] - base[k]
+            return `**${l}:** ${fmt(cur[k])}% ${trend(d)} ${sign(d)}${fmt(d)}`
+          }
+
+          const body = `
+          📊 **Code Coverage Report**
+
+          ${row("total","Total")}
+          ${row("line","Lines")}
+          ${row("branch","Branches")}
+          ${row("func","Functions")}
+
+          ${hasBase ? "_Baseline: gh-pages_" : "_No baseline yet — first run_"}
+          `
+
+          const { data } = await github.rest.issues.listComments({
+            ...context.repo,
+            issue_number: context.issue.number
+          })
+
+          const prev = data.find(c => c.body.includes("Code Coverage Report"))
+
+          if (prev) {
+            await github.rest.issues.updateComment({
+              ...context.repo,
+              comment_id: prev.id,
+              body
+            })
+          } else {
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body
+            })
+          }

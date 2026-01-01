@@ -1,0 +1,72 @@
+name: Publish Coverage
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-gradle-env
+
+      - name: Run tests & coverage
+        run: ./gradlew test jacocoRootReport
+
+      - name: Extract coverage
+        id: cov
+        uses: ./.github/actions/extract-coverage
+        with:
+          xml: build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml
+
+      - name: Generate coverage JSON
+        run: |
+          OUT=.runtime-out/coverage
+          mkdir -p $OUT
+
+          cat > $OUT/baseline.json <<EOF
+          {
+            "total": ${{ steps.cov.outputs.total }},
+            "line": ${{ steps.cov.outputs.line }},
+            "branch": ${{ steps.cov.outputs.branch }},
+            "function": ${{ steps.cov.outputs.function }}
+          }
+          EOF
+
+          gen_badge () {
+            NAME=$1
+            VAL=$2
+            COLOR=red
+            (( $(echo "$VAL >= 90" | bc -l) )) && COLOR=brightgreen
+            (( $(echo "$VAL >= 80 && $VAL < 90" | bc -l) )) && COLOR=yellowgreen
+
+            cat > $OUT/$NAME.json <<EOF
+            {
+              "schemaVersion": 1,
+              "label": "coverage $NAME",
+              "message": "$VAL%",
+              "color": "$COLOR"
+            }
+            EOF
+          }
+
+          gen_badge total ${{ steps.cov.outputs.total }}
+          gen_badge line ${{ steps.cov.outputs.line }}
+          gen_badge branch ${{ steps.cov.outputs.branch }}
+          gen_badge function ${{ steps.cov.outputs.function }}
+
+      - name: Publish to gh-pages
+        run: |
+          git fetch origin gh-pages || true
+          git checkout --orphan gh-pages
+          git rm -rf .
+          cp -r .runtime-out/* .
+          touch .nojekyll
+          git add .
+          git commit -m "Update coverage data"
+          git push -f origin gh-pages
