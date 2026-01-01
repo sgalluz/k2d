@@ -28,14 +28,14 @@ runs:
       run: |
         XML="${{ inputs.xml }}"
 
-        read_cov () {
+        read_coverage () {
           TYPE=$1
-          C=$(xmllint --xpath "string(//counter[@type='$TYPE']/@covered)" "$XML")
-          M=$(xmllint --xpath "string(//counter[@type='$TYPE']/@missed)" "$XML")
+          C=$(xmllint --xpath "string(/report/counter[@type='$TYPE']/@covered)" "$XML")
+          M=$(xmllint --xpath "string(/report/counter[@type='$TYPE']/@missed)" "$XML")
           awk "BEGIN { printf \"%.2f\", ($C/($C+$M))*100 }"
         }
 
-        echo "total=$(read_cov LINE)" >> $GITHUB_OUTPUT
-        echo "line=$(read_cov LINE)" >> $GITHUB_OUTPUT
-        echo "branch=$(read_cov BRANCH)" >> $GITHUB_OUTPUT
-        echo "function=$(read_cov METHOD)" >> $GITHUB_OUTPUT
+        echo "total=$(read_coverage INSTRUCTION)" >> $GITHUB_OUTPUT
+        echo "line=$(read_coverage LINE)" >> $GITHUB_OUTPUT
+        echo "branch=$(read_coverage BRANCH)" >> $GITHUB_OUTPUT
+        echo "function=$(read_coverage METHOD)" >> $GITHUB_OUTPUT
