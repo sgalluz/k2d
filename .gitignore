@@ -38,3 +38,4 @@ Thumbs.db
 
 # Gradle
 .gradle
+!gradle/wrapper/gradle-wrapper.jar

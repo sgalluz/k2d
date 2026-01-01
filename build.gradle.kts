@@ -10,3 +10,11 @@ allprojects {
         maven("https://maven.pkg.jetbrains.software/public/composko/main")
     }
 }
+
+subprojects {
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+
+    tasks.withType<Test>().configureEach {
+        useJUnitPlatform()
+    }
+}

@@ -1,0 +1,41 @@
+name: Extract Jacoco Coverage
+description: Extract coverage percentages from Jacoco XML
+
+inputs:
+  xml:
+    required: true
+    description: 'XML file to be processed'
+
+outputs:
+  total:
+    value: ${{ steps.extract.outputs.total }}
+    description: 'total coverage'
+  line:
+    value: ${{ steps.extract.outputs.line }}
+    description: 'lines coverage'
+  branch:
+    value: ${{ steps.extract.outputs.branch }}
+    description: 'branches coverage'
+  function:
+    value: ${{ steps.extract.outputs.function }}
+    description: 'functions coverage'
+
+runs:
+  using: composite
+  steps:
+    - id: extract
+      shell: bash
+      run: |
+        XML="${{ inputs.xml }}"
+
+        read_coverage () {
+          TYPE=$1
+          C=$(xmllint --xpath "string(/report/counter[@type='$TYPE']/@covered)" "$XML")
+          M=$(xmllint --xpath "string(/report/counter[@type='$TYPE']/@missed)" "$XML")
+          awk "BEGIN { printf \"%.2f\", ($C/($C+$M))*100 }"
+        }
+
+        echo "total=$(read_coverage INSTRUCTION)" >> $GITHUB_OUTPUT
+        echo "line=$(read_coverage LINE)" >> $GITHUB_OUTPUT
+        echo "branch=$(read_coverage BRANCH)" >> $GITHUB_OUTPUT
+        echo "function=$(read_coverage METHOD)" >> $GITHUB_OUTPUT

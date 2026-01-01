@@ -1,0 +1,61 @@
+name: ✨ Feature Request
+description: Suggest a new feature or improvement for K2D
+title: "[Feature]: "
+labels: ["enhancement"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping shape **K2D – Kotlin 2D Engine** 🚀  
+        Please note that the project is **Pre-Alpha**, so APIs may change.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: What problem does this feature solve?
+      placeholder: As a game developer using K2D, I want to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the feature you would like to see.
+      placeholder: I propose adding...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Engine Area
+      options:
+        - Core Loop
+        - ECS
+        - Rendering
+        - Input System
+        - Asset Management
+        - Physics
+        - Documentation
+        - Tooling
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or Workarounds
+      description: Any alternative approaches you considered?
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Links, mockups, references, or examples.
