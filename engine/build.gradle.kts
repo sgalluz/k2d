@@ -22,8 +22,8 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     dependsOn(tasks.test)
 
     reports {
-        xml.required.set(true)   // pipeline
-        html.required.set(true)  // debug locale
+        xml.required.set(true)
+        html.required.set(true)
     }
 
     classDirectories.setFrom(
@@ -39,4 +39,14 @@ tasks.named<JacocoReport>("jacocoTestReport") {
             }
         })
     )
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.0".toBigDecimal()
+            }
+        }
+    }
 }

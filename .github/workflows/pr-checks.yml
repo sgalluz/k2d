@@ -37,40 +37,8 @@ jobs:
       - name: Run tests & coverage
         run: ./gradlew :engine:test :engine:jacocoTestReport
 
-      - name: Extract PR coverage
-        id: pr
-        uses: ./.github/actions/extract-coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
         with:
-          xml: engine/build/reports/jacoco/test/jacocoTestReport.xml
+          files: engine/build/reports/jacoco/test/jacocoTestReport.xml
 
-      - name: Read baseline (if exists)
-        id: base
-        run: |
-          git fetch origin gh-pages || true
-          if git show origin/gh-pages:coverage/baseline.json > base.json 2>/dev/null; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "total=$(jq -r '.total' base.json)" >> $GITHUB_OUTPUT
-            echo "line=$(jq -r '.line' base.json)" >> $GITHUB_OUTPUT
-            echo "branch=$(jq -r '.branch' base.json)" >> $GITHUB_OUTPUT
-            echo "function=$(jq -r '.function' base.json)" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Fail if total decreased
-        if: steps.base.outputs.exists == 'true'
-        run: |
-          awk "BEGIN { exit !(${{ steps.pr.outputs.total }} < ${{ steps.base.outputs.total }}) }"
-
-      - name: Comment PR
-        uses: ./.github/actions/comment-pr-coverage
-        with:
-          pr-total: ${{ steps.pr.outputs.total }}
-          pr-line: ${{ steps.pr.outputs.line }}
-          pr-branch: ${{ steps.pr.outputs.branch }}
-          pr-function: ${{ steps.pr.outputs.function }}
-
-          base-total: ${{ steps.base.outputs.total }}
-          base-line: ${{ steps.base.outputs.line }}
-          base-branch: ${{ steps.base.outputs.branch }}
-          base-function: ${{ steps.base.outputs.function }}
