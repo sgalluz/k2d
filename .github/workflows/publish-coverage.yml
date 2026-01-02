@@ -18,32 +18,7 @@ jobs:
       - name: Run tests & coverage
         run: ./gradlew :engine:test :engine:jacocoTestReport
 
-      - name: Extract coverage
-        id: cov
-        uses: ./.github/actions/extract-coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
         with:
-          xml: engine/build/reports/jacoco/test/jacocoTestReport.xml
-
-      - name: Build coverage.json + badge
-        uses: ./.github/actions/coverage-json
-        with:
-          total: ${{ steps.cov.outputs.total }}
-          line: ${{ steps.cov.outputs.line }}
-          branch: ${{ steps.cov.outputs.branch }}
-          function: ${{ steps.cov.outputs.function }}
-
-      - name: Publish to gh-pages
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          git fetch origin gh-pages || true
-          git checkout --orphan gh-pages
-          git rm -rf .
-
-          cp -r .runtime-out/* .
-          touch .nojekyll
-
-          git add .
-          git commit -m "Update coverage data"
-          git push -f origin gh-pages
+          files: engine/build/reports/jacoco/test/jacocoTestReport.xml

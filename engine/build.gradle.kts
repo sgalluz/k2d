@@ -22,8 +22,8 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     dependsOn(tasks.test)
 
     reports {
-        xml.required.set(true)   // pipeline
-        html.required.set(true)  // debug locale
+        xml.required.set(true)
+        html.required.set(true)
     }
 
     classDirectories.setFrom(
@@ -39,4 +39,28 @@ tasks.named<JacocoReport>("jacocoTestReport") {
             }
         })
     )
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = "BUNDLE"
+
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.50".toBigDecimal() // FIXME: should reach 0.80 asap
+            }
+
+            limit {
+                counter = "BRANCH"
+                value = "COVEREDRATIO"
+                minimum = "0.20".toBigDecimal() // FIXME: should reach 0.70 asap
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
