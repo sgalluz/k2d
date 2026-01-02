@@ -3,27 +3,36 @@ package io.sgalluz.k2d.core
 import androidx.compose.runtime.*
 import kotlinx.coroutines.isActive
 
-@Composable
-fun rememberGameLoop(onUpdate: (Float) -> Unit): State<Long> {
-    // This state triggers the recomposition of the Compose Canvas
-    val frameClock = remember { mutableStateOf(0L) }
+class GameLoop(private val onUpdate: (Float) -> Unit) {
+    private val ticker = TimeTicker()
 
-    LaunchedEffect(Unit) {
-        var lastFrameTime = 0L
+    // Internal state to trigger recomposition
+    private val _frameState = mutableStateOf(0L)
+    val frameState: State<Long> = _frameState
 
-        while (isActive) {
-            withFrameNanos { frameTimeNanos ->
-                if (lastFrameTime != 0L) {
-                    // Calculate delta time in seconds
-                    val deltaTime = (frameTimeNanos - lastFrameTime) / 1_000_000_000f
+    fun update(frameTimeNanos: Long) {
+        val deltaTime = ticker.tick(frameTimeNanos)
+        if (deltaTime > 0f) onUpdate(deltaTime)
+        _frameState.value = frameTimeNanos
+    }
 
-                    // Execute game logic (physics, movement, etc.)
-                    onUpdate(deltaTime)
+    companion object {
+        /**
+         * Creates and remembers a GameLoop instance, automatically
+         * starting the frame clock connection.
+         */
+        @Composable
+        fun rememberInstance(onUpdate: (Float) -> Unit): GameLoop {
+            val gameLoop = remember { GameLoop(onUpdate) }
+
+            LaunchedEffect(gameLoop) {
+                while (isActive) {
+                    withFrameNanos { frameNanos ->
+                        gameLoop.update(frameNanos)
+                    }
                 }
-                lastFrameTime = frameTimeNanos
-                frameClock.value = frameTimeNanos
             }
+            return gameLoop
         }
     }
-    return frameClock
 }
