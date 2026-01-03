@@ -1,7 +1,6 @@
 package io.sgalluz.k2d.ecs.systems
 
 import io.sgalluz.k2d.ecs.Entity
-import io.sgalluz.k2d.ecs.GameSystem
 import io.sgalluz.k2d.ecs.Position
 import io.sgalluz.k2d.ecs.Velocity
 
