@@ -5,16 +5,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import io.sgalluz.k2d.core.GameLoop
+import io.sgalluz.k2d.runtime.compose.rememberGameLoop
 
 @Composable
 fun K2DCanvas(
     onUpdate: (Float) -> Unit,
     onRender: DrawScope.() -> Unit
 ) {
-    val gameLoop = GameLoop.rememberInstance(onUpdate)
+    val gameLoop = rememberGameLoop(onUpdate)
     Canvas(modifier = Modifier.fillMaxSize()) {
-        gameLoop.frameState.value
+        gameLoop.frameTick.value
         onRender()
     }
 }
