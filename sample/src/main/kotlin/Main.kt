@@ -4,7 +4,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import io.sgalluz.k2d.ecs.*
 import io.sgalluz.k2d.ecs.systems.MovementSystem
-import io.sgalluz.k2d.rendering.K2DCanvas
+import io.sgalluz.k2d.rendering.k2dCanvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import io.sgalluz.k2d.ecs.systems.BoundarySystem
@@ -25,7 +25,7 @@ fun main() = application {
     }
 
     Window(onCloseRequest = ::exitApplication, title = "K2D Engine - ECS in Action") {
-        K2DCanvas(
+        k2dCanvas(
             onUpdate = { deltaTime ->
                 // 3. The engine heartbeat now drives the World
                 world.update(deltaTime)

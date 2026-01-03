@@ -11,28 +11,28 @@ class BoundarySystem(
 ) : GameSystem {
     override fun update(entities: List<Entity>, deltaTime: Float) {
         entities.forEach { entity ->
-            val pos = entity.get<Position>()
-            val vel = entity.get<Velocity>()
+            val pos = entity.get<Position>() ?: return@forEach
+            val vel = entity.get<Velocity>() ?: return@forEach
 
-            if (pos != null && vel != null) {
-                // Check Right and Left
-                if (pos.x >= width && vel.x > 0) {
-                    vel.x *= -1f
-                    pos.x = width // Snap back to edge
-                } else if (pos.x <= 0f && vel.x < 0) {
-                    vel.x *= -1f
-                    pos.x = 0f // Snap back to edge
-                }
+            val (newX, newVelX) = bounce(pos.x, vel.x, 0f, width)
+            val (newY, newVelY) = bounce(pos.y, vel.y, 0f, height)
 
-                // Check Bottom and Top
-                if (pos.y >= height && vel.y > 0) {
-                    vel.y *= -1f
-                    pos.y = height
-                } else if (pos.y <= 0f && vel.y < 0) {
-                    vel.y *= -1f
-                    pos.y = 0f
-                }
-            }
+            pos.x = newX
+            pos.y = newY
+            vel.x = newVelX
+            vel.y = newVelY
         }
     }
+
+    private fun bounce(
+        position: Float,
+        velocity: Float,
+        min: Float,
+        max: Float
+    ): Pair<Float, Float> =
+        when {
+            position >= max && velocity > 0 -> max to -velocity
+            position <= min && velocity < 0 -> min to -velocity
+            else -> position to velocity
+        }
 }

@@ -1,3 +1,7 @@
+@file:OptIn(ExperimentalComposeLibrary::class)
+
+import org.jetbrains.compose.ExperimentalComposeLibrary
+
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
@@ -11,6 +15,8 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation(compose.desktop.uiTestJUnit4)
 }
 
 tasks.withType<Test>().configureEach {
@@ -34,7 +40,12 @@ tasks.named<JacocoReport>("jacocoTestReport") {
                     "**/*\$Companion.class",
                     "**/*\$Lambda$*.*",
                     "**/*\$inlined$*.*",
-                    "**/*Preview*.*"
+                    "**/*Preview*.*",
+
+                    // Compose-related
+                    "**/*Composable*.*",
+                    "**/*_Kt.class",
+                    "**/runtime/compose/**"
                 )
             }
         })
