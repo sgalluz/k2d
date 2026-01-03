@@ -17,14 +17,15 @@ class ShapeRenderSystemTest {
         val drawScope = mockk<androidx.compose.ui.graphics.drawscope.DrawScope>(relaxed = true)
         val system = ShapeRenderSystem()
 
-        val validEntity = Entity(1)
-            .add(Position(10f, 20f))
-            .add(Sprite(Color.Red, 50f))
+        val entities = listOf(
+            Entity(1)
+                .add(Position(10f, 20f))
+                .add(Sprite(Color.Red, 50f)),
 
-        val invalidEntity = Entity(2)
-            .add(Position(30f, 40f))
+            Entity(2).add(Position(30f, 40f)),
 
-        val entities = listOf(validEntity, invalidEntity)
+            Entity(3)
+        )
 
         // Act
         system.render(entities, drawScope)
