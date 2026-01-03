@@ -1,3 +1,3 @@
-rootProject.name = "K2D"
+rootProject.name = "k2d"
 include(":engine")
 include(":sample")
