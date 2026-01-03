@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   semantic-pr:
+    name: Semantic Commit Title
     runs-on: ubuntu-latest
     steps:
       - uses: amannn/action-semantic-pull-request@v5
@@ -26,25 +27,28 @@ jobs:
             chore
           requireScope: false
 
-  coverage:
+  build:
+    name: Build
     runs-on: ubuntu-latest
     needs: semantic-pr
-
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-gradle-env
+      - run: ./gradlew :engine:assemble --build-cache --configuration-cache
 
-      - name: Build engine
-        run: ./gradlew :engine:assemble --build-cache --configuration-cache
-
-      - name: Run tests & coverage
-        run: ./gradlew :engine:test :engine:jacocoTestReport --build-cache --configuration-cache
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+  test:
+    name: Test + Coverage
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-gradle-env
+      - run: ./gradlew :engine:test :engine:jacocoTestReport \
+          --build-cache \
+          --configuration-cache
+      - uses: codecov/codecov-action@v4
         with:
           files: engine/build/reports/jacoco/test/jacocoTestReport.xml
           flags: engine
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
-
