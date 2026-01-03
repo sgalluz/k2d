@@ -15,8 +15,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-gradle-env
 
+      - name: Build engine
+        run: ./gradlew :engine:assemble --build-cache --configuration-cache
+
       - name: Run tests & coverage
-        run: ./gradlew :engine:test :engine:jacocoTestReport
+        run: ./gradlew :engine:test :engine:jacocoTestReport --build-cache --configuration-cache
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
