@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/badge/Platform-Desktop-orange?logo=linux&logoColor=white" alt="Platform Desktop">
   <img src="https://img.shields.io/badge/License-Apache_2.0-green" alt="License Apache 2.0">
   <img src="https://img.shields.io/badge/Status-Pre--Alpha-red" alt="Status Pre-Alpha">
-  <img src="https://codecov.io/github/sgalluz/K2D/graph/badge.svg?token=R00L4MD9N3" alt="Coverage"/>
+  <img src="https://codecov.io/github/sgalluz/k2d/graph/badge.svg?token=R00L4MD9N3" alt="Coverage"/>
 </div>
 
 ---

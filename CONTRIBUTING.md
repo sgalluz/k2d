@@ -57,8 +57,8 @@ Basic requirements:
 
 Clone the repository:
 ```bash
-git clone https://github.com/sgalluz/K2D.git
-cd K2D
+git clone https://github.com/sgalluz/k2d.git
+cd k2d
 ```
 
 Run the sample project:
