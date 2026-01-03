@@ -1,5 +1,6 @@
 package io.sgalluz.k2d.ecs
 
+import io.sgalluz.k2d.ecs.systems.GameSystem
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertEquals

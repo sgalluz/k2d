@@ -1,4 +1,6 @@
-package io.sgalluz.k2d.ecs
+package io.sgalluz.k2d.ecs.systems
+
+import io.sgalluz.k2d.ecs.Entity
 
 /**
  * Base interface for all game systems.

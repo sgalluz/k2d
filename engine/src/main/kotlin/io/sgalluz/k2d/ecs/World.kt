@@ -1,35 +1,31 @@
 package io.sgalluz.k2d.ecs
 
+import io.sgalluz.k2d.ecs.systems.GameSystem
+
 /**
  * The World manages the lifecycle of entities and systems.
  * It is the main entry point for the game engine logic.
  */
 class World {
     private val entities = mutableListOf<Entity>()
-    private val systems = mutableListOf<GameSystem>()
-    private var nextEntityId = 0
+    private val logicSystems = mutableListOf<GameSystem>()
+
 
     /**
      * Creates and adds a new entity to the world.
      */
-    fun createEntity(): Entity {
-        val entity = Entity(nextEntityId++)
-        entities.add(entity)
-        return entity
-    }
+    fun createEntity(): Entity = Entity(entities.size).also { entities.add(it) }
 
     /**
      * Adds an existing system to the world.
      */
-    fun addSystem(system: GameSystem) = systems.add(system)
+    fun addSystem(system: GameSystem) = logicSystems.add(system)
 
     /**
      * Updates all registered systems.
      */
     fun update(deltaTime: Float) {
-        for (system in systems) {
-            system.update(entities, deltaTime)
-        }
+        logicSystems.forEach { it.update(entities, deltaTime) }
     }
 
     /**
