@@ -4,15 +4,16 @@ description: Setup Java, Gradle wrapper and required utilities
 runs:
   using: composite
   steps:
-    - uses: actions/setup-java@v4
+    - name: Setup Java
+      uses: actions/setup-java@v4
       with:
         distribution: temurin
         java-version: 21
-        cache: gradle
 
-    - name: Install utilities
-      shell: bash
-      run: sudo apt-get update && sudo apt-get install -y jq libxml2-utils bc
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v3
+      with:
+        cache-read-only: false
 
     - name: Ensure gradlew executable
       shell: bash
