@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import io.sgalluz.k2d.runtime.compose.rememberGameLoop
 
 @Composable
-fun K2DCanvas(
+fun k2dCanvas(
     onUpdate: (Float) -> Unit,
     onRender: DrawScope.() -> Unit
 ) {

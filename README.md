@@ -93,7 +93,7 @@ fun main() = application {
     var pos by remember { mutableStateOf(Offset.Zero) }
 
     Window(onCloseRequest = ::exitApplication) {
-        K2DCanvas(
+        k2dCanvas(
             onUpdate = { dt -> pos += Offset(100f, 100f) * dt },
             onRender = { drawRect(Color.Cyan, pos, Size(50f, 50f)) }
         )
