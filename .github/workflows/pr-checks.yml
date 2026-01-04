@@ -43,9 +43,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-gradle-env
-      - run: ./gradlew :engine:test :engine:jacocoTestReport \
-          --build-cache \
-          --configuration-cache
+      - run: ./gradlew :engine:cleanTest :engine:test :engine:jacocoTestReport --build-cache --configuration-cache
+
       - uses: codecov/codecov-action@v4
         with:
           files: engine/build/reports/jacoco/test/jacocoTestReport.xml
