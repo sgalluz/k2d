@@ -1,0 +1,39 @@
+name: Gradle Checks
+
+on:
+  workflow_call:
+    inputs:
+      job-name:
+        required: true
+        type: string
+      task:
+        required: true
+        type: string
+    secrets:
+      CODECOV_TOKEN:
+        required: false
+
+jobs:
+  gradle-task:
+    name: Gradle | ${{ inputs.job-name }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-gradle-env
+      
+      - name: Run engine:${{ inputs.task }}
+        run: |
+          COMMAND="./gradlew :engine:${{ inputs.task }} --build-cache --configuration-cache"
+          if [[ "${{ inputs.task }}" == *"test"* ]]; then
+            COMMAND="./gradlew :engine:cleanTest $COMMAND"
+          fi
+          $COMMAND
+
+      - name: Upload Coverage
+        if: contains(inputs.task, 'jacocoTestReport')
+        uses: codecov/codecov-action@v4
+        with:
+          files: engine/build/reports/jacoco/test/jacocoTestReport.xml
+          flags: engine
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
