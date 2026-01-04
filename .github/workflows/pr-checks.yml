@@ -5,11 +5,12 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
-  pull-requests: write
   contents: read
+  pull-requests: write
 
 jobs:
   semantic-pr:
+    name: Semantic Commit Title
     runs-on: ubuntu-latest
     steps:
       - uses: amannn/action-semantic-pull-request@v5
@@ -26,22 +27,18 @@ jobs:
             chore
           requireScope: false
 
-  coverage:
-    runs-on: ubuntu-latest
+  build:
     needs: semantic-pr
+    uses: ./.github/workflows/gradle-checks.yml
+    with:
+      job-name: "Assemble Engine"
+      task: "assemble"
 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-gradle-env
-
-      - name: Run tests & coverage
-        run: ./gradlew :engine:test :engine:jacocoTestReport
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: engine/build/reports/jacoco/test/jacocoTestReport.xml
-          flags: engine
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-
+  test:
+    needs: build
+    uses: ./.github/workflows/gradle-checks.yml
+    with:
+      job-name: "Test & Coverage Engine"
+      task: "test :engine:jacocoTestReport"
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
