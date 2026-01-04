@@ -24,10 +24,10 @@ jobs:
       - name: Run engine:${{ inputs.task }}
         shell: bash
         run: |
-          TASKS="${{ inputs.module }}:${{ inputs.task }}"
+          TASKS=":engine:${{ inputs.task }}"
           
           if [[ "${{ inputs.task }}" == *"test"* ]]; then
-            TASKS="${{ inputs.module }}:cleanTest $TASKS"
+            TASKS=":engine:cleanTest $TASKS"
           fi
           
           echo "Executing: ./gradlew $TASKS --build-cache --configuration-cache"
