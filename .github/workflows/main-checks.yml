@@ -1,0 +1,24 @@
+name: Main Checks
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/gradle-checks.yml
+    with:
+      job-name: "Assemble Engine"
+      task: "assemble"
+
+  test:
+    needs: build
+    uses: ./.github/workflows/gradle-checks.yml
+    with:
+      job-name: "Test & Coverage Engine"
+      task: "test :engine:jacocoTestReport"
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
