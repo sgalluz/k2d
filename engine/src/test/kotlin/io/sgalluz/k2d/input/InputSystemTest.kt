@@ -5,22 +5,30 @@ import io.sgalluz.k2d.ecs.PlayerInput
 import io.sgalluz.k2d.ecs.Velocity
 import io.sgalluz.k2d.ecs.World
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertEquals
 
 class InputSystemTest {
-    @Test
-    fun `should update Velocity when keys are pressed`() {
+    @ParameterizedTest(name = "Direction {0} results in velocity ({1}, {2})")
+    @MethodSource("provideDirectionalInput")
+    fun `should update Velocity when directional keys are pressed`(
+        keyCode: Long,
+        expectedX: Float,
+        expectedY: Float
+    ) {
         val world = World()
         val player = world.createEntity()
             .add(Velocity(0f, 0f))
             .add(PlayerInput())
-        val pressedKeys = listOf(Key.DirectionRight)
-        val inputSystem = InputSystem(pressedKeys)
+        val inputSystem = InputSystem(listOf(Key(keyCode)))
 
         inputSystem.update(world.getEntities(), 0.016f)
 
         val vel = player.get<Velocity>()!!
-        assertEquals(200f, vel.x, "Velocity X should be 200 when Key.DirectionRight is pressed")
+        assertEquals(expectedX, vel.x, "Velocity X mismatch")
+        assertEquals(expectedY, vel.y, "Velocity Y mismatch")
     }
 
     @Test
@@ -47,5 +55,25 @@ class InputSystemTest {
         val inputSystem = InputSystem(listOf(Key.DirectionRight))
 
         inputSystem.update(world.getEntities(), 0.016f)
+    }
+
+    @Test
+    fun `should not crash if PlayerInput component is missing`() {
+        val world = World()
+        world.createEntity().add(Velocity(0f, 0f))
+
+        val inputSystem = InputSystem(listOf(Key.DirectionRight))
+
+        inputSystem.update(world.getEntities(), 0.016f)
+    }
+
+    companion object {
+        @JvmStatic
+        fun provideDirectionalInput(): List<Arguments> = listOf(
+            Arguments.of(Key.DirectionRight.keyCode, 200f, 0f),
+            Arguments.of(Key.DirectionLeft.keyCode, -200f, 0f),
+            Arguments.of(Key.DirectionUp.keyCode, 0f, -200f),
+            Arguments.of(Key.DirectionDown.keyCode, 0f, 200f)
+        )
     }
 }
