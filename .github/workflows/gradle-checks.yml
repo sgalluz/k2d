@@ -22,12 +22,16 @@ jobs:
       - uses: ./.github/actions/setup-gradle-env
       
       - name: Run engine:${{ inputs.task }}
+        shell: bash
         run: |
-          COMMAND="./gradlew :engine:${{ inputs.task }} --build-cache --configuration-cache"
+          TASKS="${{ inputs.module }}:${{ inputs.task }}"
+          
           if [[ "${{ inputs.task }}" == *"test"* ]]; then
-            COMMAND="./gradlew :engine:cleanTest $COMMAND"
+            TASKS="${{ inputs.module }}:cleanTest $TASKS"
           fi
-          $COMMAND
+          
+          echo "Executing: ./gradlew $TASKS --build-cache --configuration-cache"
+          ./gradlew $TASKS --build-cache --configuration-cache
 
       - name: Upload Coverage
         if: contains(inputs.task, 'jacocoTestReport')
