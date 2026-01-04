@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-gradle-env
+      - uses: ./.github/actions/setup-gradle
       
       - name: Run engine:${{ inputs.task }}
         shell: bash

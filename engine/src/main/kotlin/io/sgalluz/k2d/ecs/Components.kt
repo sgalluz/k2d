@@ -1,14 +1,10 @@
 package io.sgalluz.k2d.ecs
 
-/**
- * Basic components for 2D movement and rendering.
- */
+import androidx.compose.ui.graphics.Color
 
-data class Position(var x: Float, var y: Float)
+interface Component
 
-data class Velocity(var x: Float, var y: Float)
-
-data class Sprite(
-    val color: androidx.compose.ui.graphics.Color,
-    val size: Float
-)
+data class Position(var x: Float, var y: Float) : Component
+data class Velocity(var x: Float, var y: Float) : Component
+data class Sprite(val color: Color, val size: Float) : Component
+class PlayerInput : Component
