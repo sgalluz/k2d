@@ -17,6 +17,9 @@ jobs:
   gradle-task:
     name: Gradle | ${{ inputs.job-name }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-gradle-env
