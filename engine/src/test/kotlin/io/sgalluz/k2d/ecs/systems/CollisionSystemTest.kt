@@ -49,7 +49,9 @@ class CollisionSystemTest {
         val e2 = world.createEntity().add(Position(0f, 100f)).add(BoxCollider(50f, 50f))
 
         system.update(world.getEntities(), 0.016f)
+
         assertFalse(e1.get<BoxCollider>()!!.isColliding)
+        assertFalse(e2.get<BoxCollider>()!!.isColliding)
     }
 
     @Test
@@ -61,7 +63,9 @@ class CollisionSystemTest {
         val e2 = world.createEntity().add(Position(100f, 0f)).add(BoxCollider(50f, 50f))
 
         system.update(world.getEntities(), 0.016f)
+
         assertFalse(e1.get<BoxCollider>()!!.isColliding)
+        assertFalse(e2.get<BoxCollider>()!!.isColliding)
     }
 
     @Test
@@ -73,7 +77,9 @@ class CollisionSystemTest {
         val e2 = world.createEntity().add(Position(100f, 0f)).add(BoxCollider(50f, 50f))
 
         system.update(world.getEntities(), 0.016f)
+
         assertFalse(e1.get<BoxCollider>()!!.isColliding)
+        assertFalse(e2.get<BoxCollider>()!!.isColliding)
     }
 
     @Test
@@ -85,7 +91,9 @@ class CollisionSystemTest {
         val e2 = world.createEntity().add(Position(0f, 100f)).add(BoxCollider(50f, 50f))
 
         system.update(world.getEntities(), 0.016f)
+
         assertFalse(e1.get<BoxCollider>()!!.isColliding)
+        assertFalse(e2.get<BoxCollider>()!!.isColliding)
     }
 
     @Test
@@ -99,6 +107,7 @@ class CollisionSystemTest {
         val e3 = world.createEntity().add(Position(100f, 100f)).add(BoxCollider(10f, 10f))
 
         system.update(world.getEntities(), 0.016f)
+
         assertFalse(e3.get<BoxCollider>()!!.isColliding, "System should still run correctly for valid entities")
     }
 
