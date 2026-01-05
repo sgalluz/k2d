@@ -6,6 +6,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import io.sgalluz.k2d.ecs.*
 import io.sgalluz.k2d.ecs.systems.BoundarySystem
+import io.sgalluz.k2d.ecs.systems.CollisionSystem
 import io.sgalluz.k2d.ecs.systems.MovementSystem
 import io.sgalluz.k2d.input.InputSystem
 import io.sgalluz.k2d.rendering.k2dCanvas
@@ -23,6 +24,7 @@ fun main() = application {
             // Internal logic systems
             addSystem(MovementSystem())
             addSystem(BoundarySystem(width = 800f, height = 600f))
+            addSystem(CollisionSystem())
 
             // Create "Player" entity (Cyan)
             // Starts idle (0,0). Velocity is controlled entirely by InputSystem.
@@ -30,6 +32,7 @@ fun main() = application {
                 .add(Position(400f, 300f))
                 .add(Velocity(0f, 0f))
                 .add(Sprite(Color.Cyan, 50f))
+                .add(BoxCollider(width = 50f, height = 50f))
                 .add(PlayerInput())
 
             // Create "NPC" entity (Magenta)
@@ -38,6 +41,7 @@ fun main() = application {
                 .add(Position(100f, 100f))
                 .add(Velocity(150f, 150f))
                 .add(Sprite(Color.Magenta, 30f))
+                .add(BoxCollider(width = 30f, height = 30f))
         }
     }
 
@@ -69,6 +73,7 @@ fun main() = application {
                 inputSystem.update(world.getEntities(), deltaTime)
 
                 // Then, run the physics simulation and constraints
+                // world.update now runs: Movement -> Boundary -> Collision
                 world.update(deltaTime)
             },
             onRender = {
