@@ -1,6 +1,7 @@
 package io.sgalluz.k2d.ecs.systems
 
 import io.sgalluz.k2d.ecs.*
+import kotlin.math.abs
 
 class CollisionSystem : GameSystem {
     override fun update(entities: List<Entity>, deltaTime: Float) {
@@ -15,43 +16,59 @@ class CollisionSystem : GameSystem {
                 if (checkAABB(e1, e2)) {
                     e1.get<BoxCollider>()?.isColliding = true
                     e2.get<BoxCollider>()?.isColliding = true
-                    resolveStaticCollision(e1, e2)
+
+                    resolve(e1, e2)
                 }
             }
         }
     }
 
-    private fun resolveStaticCollision(e1: Entity, e2: Entity) {
+    private fun resolve(e1: Entity, e2: Entity) {
         val c1 = e1.get<BoxCollider>()!!
         val c2 = e2.get<BoxCollider>()!!
 
-        if (c1.isStatic && c2.isStatic) return
+        when {
+            c1.response == CollisionResponse.STATIC && c2.response != CollisionResponse.STATIC ->
+                pushOut(mobile = e2, obstacle = e1)
 
-        // FIXME: handle dynamic resolution
-        if (!c1.isStatic && !c2.isStatic) return
+            c2.response == CollisionResponse.STATIC && c1.response != CollisionResponse.STATIC ->
+                pushOut(mobile = e1, obstacle = e2)
 
-        val mobile = if (!c1.isStatic) e1 else e2
-        val static = if (c1.isStatic) e1 else e2
+            // FIXME: add handler for BOUNCE CollisionResponse
+        }
+    }
 
+    private fun pushOut(mobile: Entity, obstacle: Entity) {
         val mPos = mobile.get<Position>()!!
         val mCol = mobile.get<BoxCollider>()!!
-        val sPos = static.get<Position>()!!
-        val sCol = static.get<BoxCollider>()!!
+        val oPos = obstacle.get<Position>()!!
+        val oCol = obstacle.get<BoxCollider>()!!
 
-        val overlapX = if (mPos.x < sPos.x)
-            (mPos.x + mCol.width) - sPos.x
-        else
-            (sPos.x + sCol.width) - mPos.x
+        // 1. Let's calculate the centers of the two colliders
+        val mCenterX = mPos.x + mCol.width / 2f
+        val mCenterY = mPos.y + mCol.height / 2f
+        val oCenterX = oPos.x + oCol.width / 2f
+        val oCenterY = oPos.y + oCol.height / 2f
 
-        val overlapY = if (mPos.y < sPos.y)
-            (mPos.y + mCol.height) - sPos.y
-        else
-            (sPos.y + sCol.height) - mPos.y
+        // 2. Distance between centers on both axes
+        val diffX = mCenterX - oCenterX
+        val diffY = mCenterY - oCenterY
 
+        // 3. Sum of the semi-dimensions (the minimum distance to avoid touching)
+        val minDistanceX = (mCol.width + oCol.width) / 2f
+        val minDistanceY = (mCol.height + oCol.height) / 2f
+
+        // 4. Let's calculate the effective overlap
+        val overlapX = minDistanceX - abs(diffX)
+        val overlapY = minDistanceY - abs(diffY)
+
+        // 5. We solve on the axis of minor overlap
         if (overlapX < overlapY) {
-            if (mPos.x < sPos.x) mPos.x -= overlapX else mPos.x += overlapX
+            // We move the mobile to the left or right of the obstacle
+            mPos.x += if (diffX > 0) overlapX else -overlapX
         } else {
-            if (mPos.y < sPos.y) mPos.y -= overlapY else mPos.y += overlapY
+            // We move the mobile above or below the obstacle
+            mPos.y += if (diffY > 0) overlapY else -overlapY
         }
     }
 

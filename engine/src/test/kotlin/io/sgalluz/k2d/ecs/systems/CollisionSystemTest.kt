@@ -1,18 +1,27 @@
 package io.sgalluz.k2d.ecs.systems
 
 import io.sgalluz.k2d.ecs.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.assertFalse
 
 class CollisionSystemTest {
+    private lateinit var world: World
+    private lateinit var system: CollisionSystem
+
+    @BeforeEach
+    fun setup() {
+        world = World()
+        system = CollisionSystem()
+    }
 
     @Test
     fun `entities with overlapping BoxColliders should be detected`() {
-        val world = World()
-        val system = CollisionSystem()
-
         val e1 = world.createEntity()
             .add(Position(0f, 0f))
             .add(BoxCollider(width = 50f, height = 50f))
@@ -29,9 +38,6 @@ class CollisionSystemTest {
 
     @Test
     fun `entities far apart should not be detected as colliding`() {
-        val world = World()
-        val system = CollisionSystem()
-
         val e1 = world.createEntity().add(Position(0f, 0f)).add(BoxCollider(10f, 10f))
         val e2 = world.createEntity().add(Position(100f, 100f)).add(BoxCollider(10f, 10f))
 
@@ -43,8 +49,6 @@ class CollisionSystemTest {
 
     @Test
     fun `should not collide when target is to the LEFT of source`() {
-        val world = World()
-        val system = CollisionSystem()
         // e1 at (100, 100), e2 far to the left at (0, 100)
         val e1 = world.createEntity().add(Position(100f, 100f)).add(BoxCollider(50f, 50f))
         val e2 = world.createEntity().add(Position(0f, 100f)).add(BoxCollider(50f, 50f))
@@ -57,8 +61,6 @@ class CollisionSystemTest {
 
     @Test
     fun `should not collide when target is to the RIGHT of source`() {
-        val world = World()
-        val system = CollisionSystem()
         // e1 at (0, 0), e2 far to the right at (100, 0)
         val e1 = world.createEntity().add(Position(0f, 0f)).add(BoxCollider(50f, 50f))
         val e2 = world.createEntity().add(Position(100f, 0f)).add(BoxCollider(50f, 50f))
@@ -71,8 +73,6 @@ class CollisionSystemTest {
 
     @Test
     fun `should not collide when target is ABOVE source`() {
-        val world = World()
-        val system = CollisionSystem()
         // e1 at (100, 100), e2 far above at (100, 0)
         val e1 = world.createEntity().add(Position(100f, 100f)).add(BoxCollider(50f, 50f))
         val e2 = world.createEntity().add(Position(100f, 0f)).add(BoxCollider(50f, 50f))
@@ -85,8 +85,6 @@ class CollisionSystemTest {
 
     @Test
     fun `should not collide when target is BELOW source`() {
-        val world = World()
-        val system = CollisionSystem()
         // e1 at (0, 0), e2 far below at (0, 100)
         val e1 = world.createEntity().add(Position(0f, 0f)).add(BoxCollider(50f, 50f))
         val e2 = world.createEntity().add(Position(0f, 100f)).add(BoxCollider(50f, 50f))
@@ -99,13 +97,11 @@ class CollisionSystemTest {
 
     @Test
     fun `should ignore entities missing Position or BoxCollider`() {
-        val world = World()
-        val system = CollisionSystem()
-
         world.createEntity().add(Position(0f, 0f)) // Only Position
         world.createEntity().add(BoxCollider(50f, 50f)) // Only Collider
-
-        val e3 = world.createEntity().add(Position(100f, 100f)).add(BoxCollider(10f, 10f))
+        val e3 = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(10f, 10f))
 
         system.update(world.getEntities(), 0.016f)
 
@@ -114,9 +110,6 @@ class CollisionSystemTest {
 
     @Test
     fun `should reset isColliding even for entities without Position`() {
-        val world = World()
-        val system = CollisionSystem()
-
         val collider = BoxCollider(50f, 50f, isColliding = true)
         world.createEntity().add(collider) // Missing Position, but should be reset
 
@@ -127,8 +120,6 @@ class CollisionSystemTest {
 
     @Test
     fun `should reset isColliding to false when entities move apart`() {
-        val world = World()
-        val system = CollisionSystem()
         val collider = BoxCollider(50f, 50f, isColliding = true)
 
         world.createEntity().add(Position(0f, 0f)).add(collider)
@@ -139,103 +130,62 @@ class CollisionSystemTest {
         assertFalse(collider.isColliding, "Should reset to false if no longer touching")
     }
 
-    @Test
-    fun `static resolution should push mobile entity out of static entity from the left`() {
-        val world = World()
-        val system = CollisionSystem()
-
-        val wall = world.createEntity()
+    @ParameterizedTest(name = "Push out from {0}: player at ({1}, {2}) should be moved to ({3}, {4})")
+    @MethodSource("provideStaticResolutionScenarios")
+    fun `static resolution should push mobile entity out of static entity correctly`(
+        direction: String,
+        initialX: Float, initialY: Float,
+        expectedX: Float, expectedY: Float
+    ) {
+        // Wall fixed at (100, 100) with size 50x50
+        world.createEntity()
             .add(Position(100f, 100f))
-            .add(BoxCollider(50f, 50f, isStatic = true))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
 
+        // Player with size 50x50 at variable initial position
         val player = world.createEntity()
-            .add(Position(60f, 100f))
-            .add(BoxCollider(50f, 50f, isStatic = false))
+            .add(Position(initialX, initialY))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.NONE))
 
         system.update(world.getEntities(), 0.016f)
 
-        val playerPos = player.get<Position>()!!
-
-        assertEquals(50f, playerPos.x, "Player should be pushed out to X=50")
+        val pos = player.get<Position>()!!
+        assertEquals(expectedX, pos.x, "X mismatch when pushing from $direction")
+        assertEquals(expectedY, pos.y, "Y mismatch when pushing from $direction")
     }
 
-    @Test
-    fun `static resolution should push mobile entity out of static entity from the right`() {
-        val world = World()
-        val system = CollisionSystem()
-
-        val wall = world.createEntity()
-            .add(Position(100f, 100f))
-            .add(BoxCollider(50f, 50f, isStatic = true))
-
-        val player = world.createEntity()
-            .add(Position(140f, 100f))
-            .add(BoxCollider(50f, 50f, isStatic = false))
-
-        system.update(world.getEntities(), 0.016f)
-
-        assertEquals(150f, player.get<Position>()!!.x, "Should be pushed to the right edge of the wall")
-    }
-
-    @Test
-    fun `static resolution should push mobile entity out of static entity from the top`() {
-        val world = World()
-        val system = CollisionSystem()
-
-        val wall = world.createEntity()
-            .add(Position(100f, 100f))
-            .add(BoxCollider(50f, 50f, isStatic = true))
-
-        val player = world.createEntity()
-            .add(Position(100f, 60f))
-            .add(BoxCollider(50f, 50f, isStatic = false))
-
-        system.update(world.getEntities(), 0.016f)
-
-        assertEquals(50f, player.get<Position>()!!.y, "Should be pushed to the top edge of the wall")
-    }
-
-    @Test
-    fun `static resolution should push mobile entity out of static entity from the bottom`() {
-        val world = World()
-        val system = CollisionSystem()
-
-        val wall = world.createEntity()
-            .add(Position(100f, 100f))
-            .add(BoxCollider(50f, 50f, isStatic = true))
-
-        val player = world.createEntity()
-            .add(Position(100f, 140f))
-            .add(BoxCollider(50f, 50f, isStatic = false))
-
-        system.update(world.getEntities(), 0.016f)
-
-        assertEquals(150f, player.get<Position>()!!.y, "Should be pushed to the bottom edge of the wall")
+    companion object {
+        @JvmStatic
+        fun provideStaticResolutionScenarios() = listOf(
+            // Arguments: Direction, InitialX, InitialY, ExpectedX, ExpectedY
+            Arguments.of("LEFT", 60f, 100f, 50f, 100f),
+            Arguments.of("RIGHT", 140f, 100f, 150f, 100f),
+            Arguments.of("TOP", 100f, 60f, 100f, 50f),
+            Arguments.of("BOTTOM", 100f, 140f, 100f, 150f)
+        )
     }
 
     @Test
     fun `should resolve collisions with multiple static entities (corner case)`() {
-        val world = World()
-        val system = CollisionSystem()
-
-        // Horizontal Wall (Floor)
-        world.createEntity()
+        // Arrange
+        world.createEntity() // Horizontal Wall (Floor)
             .add(Position(0f, 100f))
-            .add(BoxCollider(width = 200f, height = 50f, isStatic = true))
+            .add(BoxCollider(width = 200f, height = 50f, response = CollisionResponse.STATIC))
 
-        // Vertical Wall (Right Wall)
-        world.createEntity()
+        world.createEntity() // Vertical Wall (Right Wall)
             .add(Position(150f, 0f))
-            .add(BoxCollider(width = 50f, height = 150f, isStatic = true))
+            .add(BoxCollider(width = 50f, height = 150f, response = CollisionResponse.STATIC))
 
         // Player (50x50) stuck in the corner
         // Position (120, 80) -> Pass through the floor (Y) and wall (X)
         val player = world.createEntity()
             .add(Position(120f, 80f))
-            .add(BoxCollider(width = 50f, height = 50f, isStatic = false))
+            .add(BoxCollider(width = 50f, height = 50f))
 
+        // Act
         system.update(world.getEntities(), 0.016f)
 
+        // Assert
         val pos = player.get<Position>()!!
 
         // It must be pushed to the left of the vertical wall (X <= 100 because 100 + 50 = 150)

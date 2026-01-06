@@ -48,7 +48,7 @@ fun main() = application {
             createEntity()
                 .add(Position(250f, 200f))
                 .add(Sprite(Color.DarkGray, 100f))
-                .add(BoxCollider(width = 100f, height = 100f, isStatic = true))
+                .add(BoxCollider(width = 100f, height = 100f, response = CollisionResponse.STATIC))
         }
     }
 
