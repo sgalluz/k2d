@@ -15,5 +15,6 @@ class PlayerInput : Component
 data class BoxCollider(
     val width: Float,
     val height: Float,
-    var isColliding: Boolean = false
+    var isColliding: Boolean = false,
+    val isStatic: Boolean = false
 ) : Component

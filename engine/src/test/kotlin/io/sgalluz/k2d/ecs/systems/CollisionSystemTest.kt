@@ -2,6 +2,7 @@ package io.sgalluz.k2d.ecs.systems
 
 import io.sgalluz.k2d.ecs.*
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.assertFalse
 
@@ -136,5 +137,25 @@ class CollisionSystemTest {
         system.update(world.getEntities(), 0.016f)
 
         assertFalse(collider.isColliding, "Should reset to false if no longer touching")
+    }
+
+    @Test
+    fun `static resolution should push mobile entity out of static entity`() {
+        val world = World()
+        val system = CollisionSystem()
+
+        val wall = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, isStatic = true))
+
+        val player = world.createEntity()
+            .add(Position(60f, 100f))
+            .add(BoxCollider(50f, 50f, isStatic = false))
+
+        system.update(world.getEntities(), 0.016f)
+
+        val playerPos = player.get<Position>()!!
+
+        assertEquals(50f, playerPos.x, "Player should be pushed out to X=50")
     }
 }
