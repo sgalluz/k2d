@@ -140,7 +140,7 @@ class CollisionSystemTest {
     }
 
     @Test
-    fun `static resolution should push mobile entity out of static entity`() {
+    fun `static resolution should push mobile entity out of static entity from the left`() {
         val world = World()
         val system = CollisionSystem()
 
@@ -157,5 +157,90 @@ class CollisionSystemTest {
         val playerPos = player.get<Position>()!!
 
         assertEquals(50f, playerPos.x, "Player should be pushed out to X=50")
+    }
+
+    @Test
+    fun `static resolution should push mobile entity out of static entity from the right`() {
+        val world = World()
+        val system = CollisionSystem()
+
+        val wall = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, isStatic = true))
+
+        val player = world.createEntity()
+            .add(Position(140f, 100f))
+            .add(BoxCollider(50f, 50f, isStatic = false))
+
+        system.update(world.getEntities(), 0.016f)
+
+        assertEquals(150f, player.get<Position>()!!.x, "Should be pushed to the right edge of the wall")
+    }
+
+    @Test
+    fun `static resolution should push mobile entity out of static entity from the top`() {
+        val world = World()
+        val system = CollisionSystem()
+
+        val wall = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, isStatic = true))
+
+        val player = world.createEntity()
+            .add(Position(100f, 60f))
+            .add(BoxCollider(50f, 50f, isStatic = false))
+
+        system.update(world.getEntities(), 0.016f)
+
+        assertEquals(50f, player.get<Position>()!!.y, "Should be pushed to the top edge of the wall")
+    }
+
+    @Test
+    fun `static resolution should push mobile entity out of static entity from the bottom`() {
+        val world = World()
+        val system = CollisionSystem()
+
+        val wall = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, isStatic = true))
+
+        val player = world.createEntity()
+            .add(Position(100f, 140f))
+            .add(BoxCollider(50f, 50f, isStatic = false))
+
+        system.update(world.getEntities(), 0.016f)
+
+        assertEquals(150f, player.get<Position>()!!.y, "Should be pushed to the bottom edge of the wall")
+    }
+
+    @Test
+    fun `should resolve collisions with multiple static entities (corner case)`() {
+        val world = World()
+        val system = CollisionSystem()
+
+        // Horizontal Wall (Floor)
+        world.createEntity()
+            .add(Position(0f, 100f))
+            .add(BoxCollider(width = 200f, height = 50f, isStatic = true))
+
+        // Vertical Wall (Right Wall)
+        world.createEntity()
+            .add(Position(150f, 0f))
+            .add(BoxCollider(width = 50f, height = 150f, isStatic = true))
+
+        // Player (50x50) stuck in the corner
+        // Position (120, 80) -> Pass through the floor (Y) and wall (X)
+        val player = world.createEntity()
+            .add(Position(120f, 80f))
+            .add(BoxCollider(width = 50f, height = 50f, isStatic = false))
+
+        system.update(world.getEntities(), 0.016f)
+
+        val pos = player.get<Position>()!!
+
+        // It must be pushed to the left of the vertical wall (X <= 100 because 100 + 50 = 150)
+        // and above the horizontal wall (Y <= 50 because 50 + 50 = 100)
+        assertEquals(100f, pos.x, "Should be pushed out of the vertical wall")
+        assertEquals(50f, pos.y, "Should be pushed out of the horizontal wall")
     }
 }
