@@ -42,6 +42,13 @@ fun main() = application {
                 .add(Velocity(150f, 150f))
                 .add(Sprite(Color.Magenta, 30f))
                 .add(BoxCollider(width = 30f, height = 30f))
+
+            // WALL ENTITY (Dark Gray)
+            // A static obstacle that cannot be moved.
+            createEntity()
+                .add(Position(250f, 200f))
+                .add(Sprite(Color.DarkGray, 100f))
+                .add(BoxCollider(width = 100f, height = 100f, isStatic = true))
         }
     }
 
