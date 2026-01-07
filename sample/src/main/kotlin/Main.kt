@@ -32,7 +32,7 @@ fun main() = application {
                 .add(Position(400f, 300f))
                 .add(Velocity(0f, 0f))
                 .add(Sprite(Color.Cyan, 50f))
-                .add(BoxCollider(width = 50f, height = 50f))
+                .add(BoxCollider(width = 50f, height = 50f, response = CollisionResponse.BOUNCE))
                 .add(PlayerInput())
 
             // Create "NPC" entity (Magenta)
@@ -41,7 +41,7 @@ fun main() = application {
                 .add(Position(100f, 100f))
                 .add(Velocity(150f, 150f))
                 .add(Sprite(Color.Magenta, 30f))
-                .add(BoxCollider(width = 30f, height = 30f))
+                .add(BoxCollider(width = 30f, height = 30f, response = CollisionResponse.BOUNCE))
 
             // WALL ENTITY (Dark Gray)
             // A static obstacle that cannot be moved.
