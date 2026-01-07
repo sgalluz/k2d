@@ -28,14 +28,24 @@ class CollisionSystem : GameSystem {
         val c2 = e2.get<BoxCollider>()!!
 
         when {
-            c1.response == CollisionResponse.STATIC && c2.response != CollisionResponse.STATIC ->
-                pushOut(mobile = e2, obstacle = e1)
+            c1.response == CollisionResponse.STATIC && c2.response != CollisionResponse.STATIC -> pushOut(e2, e1)
+            c2.response == CollisionResponse.STATIC && c1.response != CollisionResponse.STATIC -> pushOut(e1, e2)
 
-            c2.response == CollisionResponse.STATIC && c1.response != CollisionResponse.STATIC ->
-                pushOut(mobile = e1, obstacle = e2)
-
-            // FIXME: add handler for BOUNCE CollisionResponse
+            // NUOVO: Caso MOBILE vs MOBILE (Bounce)
+            c1.response == CollisionResponse.BOUNCE && c2.response == CollisionResponse.BOUNCE -> resolveBounce(e1, e2)
         }
+    }
+
+    private fun checkAABB(e1: Entity, e2: Entity): Boolean {
+        val p1 = e1.get<Position>()!!
+        val c1 = e1.get<BoxCollider>()!!
+        val p2 = e2.get<Position>()!!
+        val c2 = e2.get<BoxCollider>()!!
+
+        return p1.x < p2.x + c2.width &&
+                p1.x + c1.width > p2.x &&
+                p1.y < p2.y + c2.height &&
+                p1.y + c1.height > p2.y
     }
 
     private fun pushOut(mobile: Entity, obstacle: Entity) {
@@ -72,15 +82,36 @@ class CollisionSystem : GameSystem {
         }
     }
 
-    private fun checkAABB(e1: Entity, e2: Entity): Boolean {
+    private fun resolveBounce(e1: Entity, e2: Entity) {
         val p1 = e1.get<Position>()!!
         val c1 = e1.get<BoxCollider>()!!
+        val v1 = e1.get<Velocity>()!!
+
         val p2 = e2.get<Position>()!!
         val c2 = e2.get<BoxCollider>()!!
+        val v2 = e2.get<Velocity>()!!
 
-        return p1.x < p2.x + c2.width &&
-                p1.x + c1.width > p2.x &&
-                p1.y < p2.y + c2.height &&
-                p1.y + c1.height > p2.y
+        // 1. Let's calculate the centers of the two colliders
+        val diffX = (p1.x + c1.width / 2f) - (p2.x + c2.width / 2f)
+        val diffY = (p1.y + c1.height / 2f) - (p2.y + c2.height / 2f)
+        val overlapX = (c1.width + c2.width) / 2f - abs(diffX)
+        val overlapY = (c1.height + c2.height) / 2f - abs(diffY)
+
+        // 2. Spatial resolution (each moves by half the overlap)
+        if (overlapX < overlapY) {
+            val shift = overlapX / 2f
+            if (diffX > 0) { p1.x += shift; p2.x -= shift } else { p1.x -= shift; p2.x += shift }
+
+            // 3. Kinetic resolution: we invert the velocities on X
+            v1.x = -v1.x
+            v2.x = -v2.x
+        } else {
+            val shift = overlapY / 2f
+            if (diffY > 0) { p1.y += shift; p2.y -= shift } else { p1.y -= shift; p2.y += shift }
+
+            // 3. Kinetic resolution: we invert the velocities on Y
+            v1.y = -v1.y
+            v2.y = -v2.y
+        }
     }
 }

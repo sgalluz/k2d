@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.math.abs
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.assertFalse
@@ -192,5 +193,29 @@ class CollisionSystemTest {
         // and above the horizontal wall (Y <= 50 because 50 + 50 = 100)
         assertEquals(100f, pos.x, "Should be pushed out of the vertical wall")
         assertEquals(50f, pos.y, "Should be pushed out of the horizontal wall")
+    }
+
+    @Test
+    fun `dynamic resolution should make entities bounce (swap velocities)`() {
+        // Arrange
+        val e1 = world.createEntity()
+            .add(Position(40f, 100f))
+            .add(Velocity(100f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+
+        val e2 = world.createEntity()
+            .add(Position(60f, 100f))
+            .add(Velocity(-100f, 0f)) // imminent collision (30px overlap)
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+
+        // Act
+        system.update(world.getEntities(), 0.016f)
+
+        // Assert
+        assertTrue(e1.get<Velocity>()!!.x < 0, "Entity 1 should now move left")
+        assertTrue(e2.get<Velocity>()!!.x > 0, "Entity 2 should now move right")
+
+        val dist = abs(e1.get<Position>()!!.x - e2.get<Position>()!!.x)
+        assertTrue(dist >= 50f, "Entities should no longer overlap after bounce resolution")
     }
 }
