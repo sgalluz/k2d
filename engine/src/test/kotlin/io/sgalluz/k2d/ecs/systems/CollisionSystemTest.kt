@@ -218,4 +218,40 @@ class CollisionSystemTest {
         val dist = abs(e1.get<Position>()!!.x - e2.get<Position>()!!.x)
         assertTrue(dist >= 50f, "Entities should no longer overlap after bounce resolution")
     }
+
+    @Test
+    fun `entities with response NONE should detect collision but not move`() {
+        val e1 = world.createEntity()
+            .add(Position(0f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.NONE))
+
+        world.createEntity()
+            .add(Position(10f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.NONE))
+
+        val initialPos1 = e1.get<Position>()!!.copy()
+
+        system.update(world.getEntities(), 0.016f)
+
+        assertTrue(e1.get<BoxCollider>()!!.isColliding)
+        assertEquals(initialPos1.x, e1.get<Position>()!!.x, "Entity with NONE should not move")
+    }
+
+    @Test
+    fun `bounce resolution should handle vertical collisions`() {
+        val e1 = world.createEntity()
+            .add(Position(0f, 0f))
+            .add(Velocity(0f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+
+        val e2 = world.createEntity()
+            .add(Position(0f, 40f))
+            .add(Velocity(0f, -100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+
+        system.update(world.getEntities(), 0.016f)
+
+        assertTrue(e1.get<Velocity>()!!.y < 0, "E1 should bounce UP")
+        assertTrue(e2.get<Velocity>()!!.y > 0, "E2 should bounce DOWN")
+    }
 }
