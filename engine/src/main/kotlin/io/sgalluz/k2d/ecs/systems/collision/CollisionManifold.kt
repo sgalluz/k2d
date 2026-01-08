@@ -1,8 +1,8 @@
 package io.sgalluz.k2d.ecs.systems.collision
 
-data class CollisionData(
+data class CollisionManifold(
     val overlapX: Float,
     val overlapY: Float,
-    val diffX: Float,
-    val diffY: Float
+    val deltaX: Float,
+    val deltaY: Float
 )
