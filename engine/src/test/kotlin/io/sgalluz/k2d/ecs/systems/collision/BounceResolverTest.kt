@@ -34,7 +34,6 @@ class BounceResolverTest {
         assertEquals(-1f, v1.x)
         assertEquals(1f, v2.x)
 
-        // Y invariato
         assertEquals(0f, p1.y)
         assertEquals(0f, p2.y)
     }
@@ -64,7 +63,6 @@ class BounceResolverTest {
         assertEquals(-1f, v1.y)
         assertEquals(1f, v2.y)
 
-        // X invariato
         assertEquals(0f, p1.x)
         assertEquals(0f, p2.x)
     }

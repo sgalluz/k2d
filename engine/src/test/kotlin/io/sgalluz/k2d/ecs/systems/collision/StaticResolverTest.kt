@@ -97,6 +97,6 @@ class StaticResolverTest {
     ): Entity =
         Entity(System.currentTimeMillis().toInt()).apply {
             add(Position(x, y))
-            add(BoxCollider(width = 1f, height = 1f,response = response))
+            add(BoxCollider(width = 1f, height = 1f, response = response))
         }
 }
