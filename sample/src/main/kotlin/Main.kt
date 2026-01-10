@@ -6,6 +6,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import io.sgalluz.k2d.ecs.*
 import io.sgalluz.k2d.ecs.systems.BoundarySystem
+import io.sgalluz.k2d.ecs.systems.CollisionSystem
 import io.sgalluz.k2d.ecs.systems.MovementSystem
 import io.sgalluz.k2d.input.InputSystem
 import io.sgalluz.k2d.rendering.k2dCanvas
@@ -23,21 +24,39 @@ fun main() = application {
             // Internal logic systems
             addSystem(MovementSystem())
             addSystem(BoundarySystem(width = 800f, height = 600f))
+            addSystem(CollisionSystem())
 
             // Create "Player" entity (Cyan)
-            // Starts idle (0,0). Velocity is controlled entirely by InputSystem.
+            // It will bounce off the walls and the NPC, but will move the crate (thanks to the Dispatcher)
             createEntity()
                 .add(Position(400f, 300f))
                 .add(Velocity(0f, 0f))
                 .add(Sprite(Color.Cyan, 50f))
+                .add(BoxCollider(width = 50f, height = 50f, response = CollisionResponse.BOUNCE))
                 .add(PlayerInput())
 
             // Create "NPC" entity (Magenta)
             // Moves autonomously and bounces off boundaries.
             createEntity()
                 .add(Position(100f, 100f))
-                .add(Velocity(150f, 150f))
+                .add(Velocity(150f, 100f))
                 .add(Sprite(Color.Magenta, 30f))
+                .add(BoxCollider(width = 30f, height = 30f, response = CollisionResponse.BOUNCE))
+
+            // WALL ENTITY (Dark Gray)
+            // A static obstacle that cannot be moved.
+            createEntity()
+                .add(Position(500f, 100f))
+                .add(Sprite(Color.DarkGray, 100f))
+                .add(BoxCollider(width = 100f, height = 100f, response = CollisionResponse.STATIC))
+
+            // CASSA (Yellow)
+            // Demonstrates the PUSH: if the player walks against it, it will move it without bouncing back.
+            createEntity()
+                .add(Position(200f, 400f))
+                .add(Velocity(0f, 0f)) // Ferma finché non viene spinta
+                .add(Sprite(Color.Yellow, 40f))
+                .add(BoxCollider(width = 40f, height = 40f, response = CollisionResponse.PUSH))
         }
     }
 
@@ -48,33 +67,30 @@ fun main() = application {
 
     Window(
         onCloseRequest = ::exitApplication,
-        title = "K2D Engine - Player vs NPC",
+        title = "K2D Engine - Collision Strategies",
+
         // 4. KEYBOARD EVENT CAPTURE
         onKeyEvent = { keyEvent ->
             when (keyEvent.type) {
-                KeyEventType.KeyDown -> {
-                    if (!pressedKeys.contains(keyEvent.key)) pressedKeys.add(keyEvent.key)
-                }
-                KeyEventType.KeyUp -> {
-                    pressedKeys.remove(keyEvent.key)
-                }
+                KeyEventType.KeyDown -> if (!pressedKeys.contains(keyEvent.key)) pressedKeys.add(keyEvent.key)
+                KeyEventType.KeyUp -> pressedKeys.remove(keyEvent.key)
             }
             true // Mark event as handled
         }
     ) {
         k2dCanvas(
+            // 5. ENGINE HEARTBEAT
             onUpdate = { deltaTime ->
-                // 5. ENGINE HEARTBEAT
                 // First, update player velocity based on input
                 inputSystem.update(world.getEntities(), deltaTime)
 
                 // Then, run the physics simulation and constraints
+                // world.update now runs: Movement -> Boundary -> Collision
                 world.update(deltaTime)
             },
-            onRender = {
-                // 6. RENDERING
-                renderer.render(world.getEntities(), this)
-            }
+
+            // 6. RENDERING
+            onRender = { renderer.render(world.getEntities(), this) }
         )
     }
 }
