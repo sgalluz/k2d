@@ -11,7 +11,7 @@ class BounceResolver : CollisionResolver {
         val position2 = e2.get<Position>()!!
         val velocity2 = e2.get<Velocity>()!!
 
-        if (manifold.overlapX < manifold.overlapY) {
+        if (manifold.isXAxis) {
             val direction = if (manifold.deltaX > 0f) 1f else -1f
             val separation = manifold.overlapX * 0.5f * direction
             position1.x += separation
