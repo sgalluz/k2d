@@ -26,6 +26,7 @@ class World {
      */
     fun update(deltaTime: Float) {
         logicSystems.forEach { it.update(entities, deltaTime) }
+        entities.removeIf { it.has<DeletionMark>() }
     }
 
     /**

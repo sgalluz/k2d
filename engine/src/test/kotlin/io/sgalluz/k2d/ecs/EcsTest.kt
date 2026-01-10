@@ -4,6 +4,7 @@ import io.sgalluz.k2d.ecs.systems.GameSystem
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 class EcsTest {
 
@@ -35,5 +36,16 @@ class EcsTest {
         world.update(0.16f)
 
         assertEquals(true, systemCalled, "System should be updated by the world")
+    }
+
+    @Test
+    fun `entities with DeletionMark should be removed from world at the end of update`() {
+        val world = World()
+        val entity = world.createEntity().add(Position(0f, 0f))
+        entity.add(DeletionMark())
+
+        world.update(0.016f)
+
+        assertFalse(world.getEntities().contains(entity), "Entity should be removed from the world")
     }
 }
