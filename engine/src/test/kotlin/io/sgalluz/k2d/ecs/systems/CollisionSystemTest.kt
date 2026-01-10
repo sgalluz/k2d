@@ -331,4 +331,21 @@ class CollisionSystemTest {
         assertEquals(50f, ball.get<Position>()!!.x, "Ball should be pushed out to X=50")
         assertTrue(ball.get<Velocity>()!!.x < 0, "Ball velocity should be reversed")
     }
+
+    @Test
+    fun `EXPLODE vs STATIC should mark bomb for deletion`() {
+        world.addSystem(CollisionSystem())
+
+        val bomb = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        val wall = world.createEntity()
+            .add(Position(140f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
+
+        world.update(0.016f)
+
+        assertTrue(bomb.has<DeletionMark>(), "La bomba dovrebbe avere DeletionMark dopo la collisione")
+    }
 }
