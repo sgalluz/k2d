@@ -271,4 +271,64 @@ class CollisionSystemTest {
         assertTrue(ball.get<Velocity>()!!.x < 0, "Ball should have reversed its X velocity after hitting the wall")
         assertEquals(50f, ball.get<Position>()!!.x, "Ball should have been pushed out of the wall")
     }
+
+    @Test
+    fun `PUSH vs PUSH on X axis should resolve position but maintain velocity`() {
+        val e1 = world.createEntity()
+            .add(Position(0f, 0f))
+            .add(Velocity(100f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
+
+        val e2 = world.createEntity()
+            .add(Position(40f, 0f))
+            .add(Velocity(0f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
+
+        system.update(world.getEntities(), 0.016f)
+
+        val p1 = e1.get<Position>()!!
+        val p2 = e2.get<Position>()!!
+        assertTrue(abs(p1.x - p2.x) >= 50f, "Entities should be separated")
+        assertEquals(100f, e1.get<Velocity>()!!.x, "E1 should maintain velocity")
+        assertEquals(0f, e2.get<Velocity>()!!.x, "E2 should maintain velocity")
+    }
+
+    @Test
+    fun `PUSH vs PUSH on Y axis should resolve position but maintain velocity`() {
+        val e1 = world.createEntity()
+            .add(Position(0f, 0f))
+            .add(Velocity(0f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
+
+        val e2 = world.createEntity()
+            .add(Position(0f, 40f))
+            .add(Velocity(0f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
+
+        system.update(world.getEntities(), 0.016f)
+
+        val p1 = e1.get<Position>()!!
+        val p2 = e2.get<Position>()!!
+
+        assertTrue(abs(p1.y - p2.y) >= 50f, "Entities should be separated")
+        assertEquals(100f, e1.get<Velocity>()!!.y, "E1 should maintain velocity")
+        assertEquals(0f, e2.get<Velocity>()!!.y, "E2 should maintain velocity")
+    }
+
+    @Test
+    fun `BOUNCE vs STATIC should resolve position and reverse velocity`() {
+        val wall = world.createEntity()
+            .add(Position(100f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
+
+        val ball = world.createEntity()
+            .add(Position(60f, 0f))
+            .add(Velocity(100f, 0f)) // Va verso destra (muro)
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+
+        system.update(world.getEntities(), 0.016f)
+
+        assertEquals(50f, ball.get<Position>()!!.x, "Ball should be pushed out to X=50")
+        assertTrue(ball.get<Velocity>()!!.x < 0, "Ball velocity should be reversed")
+    }
 }

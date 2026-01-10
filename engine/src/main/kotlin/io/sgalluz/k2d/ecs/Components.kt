@@ -15,7 +15,8 @@ class PlayerInput : Component
 enum class CollisionResponse {
     NONE,
     STATIC,
-    BOUNCE
+    BOUNCE,
+    PUSH
 }
 
 data class BoxCollider(

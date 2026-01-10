@@ -15,8 +15,12 @@ class CollisionResponseDispatcher {
                 getResolver(CollisionResponse.STATIC).resolve(e1, e2, collisionManifold)
                 applyPostResolutionEffects(e1, e2, collisionManifold)
             }
+
             r1 == CollisionResponse.BOUNCE && r2 == CollisionResponse.BOUNCE ->
                 getResolver(CollisionResponse.BOUNCE).resolve(e1, e2, collisionManifold)
+
+            r1 == CollisionResponse.PUSH || r2 == CollisionResponse.PUSH ->
+                getResolver(CollisionResponse.PUSH).resolve(e1, e2, collisionManifold)
         }
     }
 
