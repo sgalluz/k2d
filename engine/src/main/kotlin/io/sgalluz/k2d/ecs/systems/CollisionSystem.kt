@@ -5,8 +5,7 @@ import io.sgalluz.k2d.ecs.systems.collision.*
 import kotlin.math.abs
 
 class CollisionSystem : GameSystem {
-    private val staticResolver = StaticResolver()
-    private val bounceResolver = BounceResolver()
+    private val collisionResponseDispatcher = CollisionResponseDispatcher()
 
     override fun update(entities: List<Entity>, deltaTime: Float) {
         entities.forEach { it.get<BoxCollider>()?.isColliding = false }
@@ -22,7 +21,7 @@ class CollisionSystem : GameSystem {
                 e1.get<BoxCollider>()!!.isColliding = true
                 e2.get<BoxCollider>()!!.isColliding = true
 
-                dispatchResolution(e1, e2, data)
+                collisionResponseDispatcher.dispatch(e1, e2, data)
             }
         }
     }
@@ -41,17 +40,5 @@ class CollisionSystem : GameSystem {
         if (overlapX <= 0 || overlapY <= 0) return null
 
         return CollisionManifold(overlapX, overlapY, deltaX, deltaY)
-    }
-
-    private fun dispatchResolution(e1: Entity, e2: Entity, collisionManifold: CollisionManifold) {
-        val r1 = e1.get<BoxCollider>()!!.response
-        val r2 = e2.get<BoxCollider>()!!.response
-
-        when {
-            r1 == CollisionResponse.STATIC || r2 == CollisionResponse.STATIC ->
-                staticResolver.resolve(e1, e2, collisionManifold)
-            r1 == CollisionResponse.BOUNCE && r2 == CollisionResponse.BOUNCE ->
-                bounceResolver.resolve(e1, e2, collisionManifold)
-        }
     }
 }

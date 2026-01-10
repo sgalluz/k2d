@@ -254,4 +254,21 @@ class CollisionSystemTest {
         assertTrue(e1.get<Velocity>()!!.y < 0, "E1 should bounce UP")
         assertTrue(e2.get<Velocity>()!!.y > 0, "E2 should bounce DOWN")
     }
+
+    @Test
+    fun `BOUNCE entity should bounce off STATIC entity`() {
+        val wall = world.createEntity()
+            .add(Position(100f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
+
+        val ball = world.createEntity()
+            .add(Position(60f, 0f))
+            .add(Velocity(100f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+
+        system.update(world.getEntities(), 0.016f)
+
+        assertTrue(ball.get<Velocity>()!!.x < 0, "Ball should have reversed its X velocity after hitting the wall")
+        assertEquals(50f, ball.get<Position>()!!.x, "Ball should have been pushed out of the wall")
+    }
 }
