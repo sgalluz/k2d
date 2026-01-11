@@ -32,8 +32,19 @@ class ExplodeResolver : CollisionResolver {
         val bCol = bomb.get<BoxCollider>() ?: return
 
         val vCenterX = vPos.x + vCol.width / 2f
+        val vCenterY = vPos.y + vCol.height / 2f
         val bCenterX = bPos.x + bCol.width / 2f
+        val bCenterY = bPos.y + bCol.height / 2f
 
-        vVel.x = if (vCenterX > bCenterX) explosionPower else -explosionPower
+        val dx = vCenterX - bCenterX
+        val dy = vCenterY - bCenterY
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+            vVel.x = if (dx > 0) explosionPower else -explosionPower
+            vVel.y = 0f
+        } else {
+            vVel.y = if (dy > 0) explosionPower else -explosionPower
+            vVel.x = 0f
+        }
     }
 }
