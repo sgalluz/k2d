@@ -346,6 +346,26 @@ class CollisionSystemTest {
 
         world.update(0.016f)
 
-        assertTrue(bomb.has<DeletionMark>(), "La bomba dovrebbe avere DeletionMark dopo la collisione")
+        assertTrue(bomb.has<DeletionMark>(), "The bomb should have the DeletionMark after the collision")
+    }
+
+    @Test
+    fun `EXPLODE vs BOUNCE should push the victim away`() {
+        val world = World()
+        world.addSystem(CollisionSystem())
+
+        val bomb = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        val player = world.createEntity()
+            .add(Position(140f, 100f))
+            .add(Velocity(0f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+
+        world.update(0.016f)
+
+        val velocity = player.get<Velocity>()!!
+        assertTrue(velocity.x > 0f, "The player should have a positive velocity on X axis")
     }
 }
