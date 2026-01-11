@@ -1,50 +1,49 @@
 package io.sgalluz.k2d.ecs.systems.collision
 
-import io.sgalluz.k2d.ecs.BoxCollider
-import io.sgalluz.k2d.ecs.CollisionResponse
-import io.sgalluz.k2d.ecs.DeletionMark
-import io.sgalluz.k2d.ecs.Entity
-import io.sgalluz.k2d.ecs.Position
-import io.sgalluz.k2d.ecs.Velocity
+import io.sgalluz.k2d.ecs.*
+import kotlin.math.abs
 
 class ExplodeResolver : CollisionResolver {
     private val explosionPower = 500f
 
     override fun resolve(e1: Entity, e2: Entity, manifold: CollisionManifold) {
-        if (e1.get<BoxCollider>()?.response == CollisionResponse.EXPLODE) e1.add(DeletionMark())
-        if (e2.get<BoxCollider>()?.response == CollisionResponse.EXPLODE) e2.add(DeletionMark())
+        val r1 = e1.explosionResponse()
+        val r2 = e2.explosionResponse()
 
-        val res1 = e1.get<BoxCollider>()?.response
-        val res2 = e2.get<BoxCollider>()?.response
+        if (r1) e1.add(DeletionMark())
+        if (r2) e2.add(DeletionMark())
 
-        if (res1 == CollisionResponse.EXPLODE && res2 != CollisionResponse.EXPLODE) {
-            applyPush(victim = e2, bomb = e1)
-        } else if (res2 == CollisionResponse.EXPLODE && res1 != CollisionResponse.EXPLODE) {
-            applyPush(victim = e1, bomb = e2)
+        when {
+            r1 && !r2 -> applyPush(victim = e2, bomb = e1)
+            r2 && !r1 -> applyPush(victim = e1, bomb = e2)
         }
     }
+
+    private fun Entity.explosionResponse() =
+        get<BoxCollider>()?.response == CollisionResponse.EXPLODE
 
     private fun applyPush(victim: Entity, bomb: Entity) {
         val vVel = victim.get<Velocity>() ?: return
-        val vPos = victim.get<Position>() ?: return
-        val bPos = bomb.get<Position>() ?: return
-        val vCol = victim.get<BoxCollider>() ?: return
-        val bCol = bomb.get<BoxCollider>() ?: return
+        val (vx, vy) = victim.center() ?: return
+        val (bx, by) = bomb.center() ?: return
 
-        val vCenterX = vPos.x + vCol.width / 2f
-        val vCenterY = vPos.y + vCol.height / 2f
-        val bCenterX = bPos.x + bCol.width / 2f
-        val bCenterY = bPos.y + bCol.height / 2f
+        val dx = vx - bx
+        val dy = vy - by
 
-        val dx = vCenterX - bCenterX
-        val dy = vCenterY - bCenterY
-
-        if (Math.abs(dx) > Math.abs(dy)) {
-            vVel.x = if (dx > 0) explosionPower else -explosionPower
+        if (abs(dx) > abs(dy)) {
+            vVel.x = explosionPower * dx.sign()
             vVel.y = 0f
         } else {
-            vVel.y = if (dy > 0) explosionPower else -explosionPower
+            vVel.y = explosionPower * dy.sign()
             vVel.x = 0f
         }
     }
+
+    private fun Entity.center(): Pair<Float, Float>? {
+        val pos = get<Position>() ?: return null
+        val col = get<BoxCollider>() ?: return null
+        return pos.x + col.width / 2f to pos.y + col.height / 2f
+    }
+
+    private fun Float.sign() = if (this > 0) 1f else -1f
 }
