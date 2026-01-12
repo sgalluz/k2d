@@ -23,8 +23,8 @@ fun main() = application {
         World().apply {
             // Internal logic systems
             addSystem(MovementSystem())
-            addSystem(BoundarySystem(width = 800f, height = 600f))
             addSystem(CollisionSystem())
+            addSystem(BoundarySystem(width = 800f, height = 600f))
 
             // Create "Player" entity (Cyan)
             // It will bounce off the walls and the NPC, but will move the crate (thanks to the Dispatcher)
