@@ -386,4 +386,22 @@ class CollisionSystemTest {
         val velocity = player.get<Velocity>()!!
         assertTrue(velocity.y > 0f, "The player should have a positive velocity on Y axis")
     }
+
+    @Test
+    fun `EXPLODE vs EXPLODE should mark both bombs for deletion`() {
+        world.addSystem(CollisionSystem())
+
+        val bombA = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        val bombB = world.createEntity()
+            .add(Position(140f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        world.update(0.016f)
+
+        assertTrue(bombA.has<DeletionMark>(), "Bomb A should be marked for deletion")
+        assertTrue(bombB.has<DeletionMark>(), "Bomb B should be marked for deletion")
+    }
 }
