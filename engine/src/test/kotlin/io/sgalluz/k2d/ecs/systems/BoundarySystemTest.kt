@@ -1,5 +1,7 @@
 package io.sgalluz.k2d.ecs.systems
 
+import io.sgalluz.k2d.ecs.BoxCollider
+import io.sgalluz.k2d.ecs.Entity
 import io.sgalluz.k2d.ecs.Position
 import io.sgalluz.k2d.ecs.Velocity
 import io.sgalluz.k2d.ecs.World
@@ -25,5 +27,22 @@ class BoundarySystemTest {
 
         assertTrue(vel.x < 0, "Velocity x should be negative")
         assertEquals(800f, pos.x, "Position should be snapped to the boundary")
+    }
+
+    @Test
+    fun `BoundarySystem should keep entity inside including its width`() {
+        val screenWidth = 800f
+        val boundarySystem = BoundarySystem(screenWidth, 600f)
+
+        val playerWidth = 50f
+        val player = Entity(1)
+            .add(Position(screenWidth - 10f, 100f))
+            .add(Velocity(100f, 0f))
+            .add(BoxCollider(playerWidth, 50f))
+
+        boundarySystem.update(listOf(player), 0.016f)
+
+        val pos = player.get<Position>()!!
+        assertTrue(pos.x <= screenWidth - playerWidth, "Entity x (${pos.x}) should be capped at ${screenWidth - playerWidth}")
     }
 }
