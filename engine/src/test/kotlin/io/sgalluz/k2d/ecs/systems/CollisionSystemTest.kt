@@ -404,4 +404,22 @@ class CollisionSystemTest {
         assertTrue(bombA.has<DeletionMark>(), "Bomb A should be marked for deletion")
         assertTrue(bombB.has<DeletionMark>(), "Bomb B should be marked for deletion")
     }
+
+    @Test
+    fun `EXPLODE vs STATIC should destroy bomb and not move the static wall`() {
+        world.addSystem(CollisionSystem())
+
+        val bomb = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        val wall = world.createEntity()
+            .add(Position(140f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
+
+        world.update(0.016f)
+
+        assertTrue(bomb.has<DeletionMark>(), "Bomb must explode when hit the wall")
+        assertFalse(wall.has<Velocity>(), "The wall won't gain any Velocity from the collision")
+    }
 }
