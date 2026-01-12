@@ -50,13 +50,35 @@ fun main() = application {
                 .add(Sprite(Color.DarkGray, 100f))
                 .add(BoxCollider(width = 100f, height = 100f, response = CollisionResponse.STATIC))
 
-            // CASSA (Yellow)
+            // BOX (Yellow)
             // Demonstrates the PUSH: if the player walks against it, it will move it without bouncing back.
             createEntity()
                 .add(Position(200f, 400f))
-                .add(Velocity(0f, 0f)) // Ferma finché non viene spinta
+                .add(Velocity(0f, 0f))
                 .add(Sprite(Color.Yellow, 40f))
                 .add(BoxCollider(width = 40f, height = 40f, response = CollisionResponse.PUSH))
+
+            // MINE 1 (Red)
+            createEntity()
+                .add(Position(300f, 200f))
+                .add(Sprite(Color.Red, 20f))
+                .add(BoxCollider(width = 20f, height = 20f, response = CollisionResponse.EXPLODE))
+
+            // MINE 2 (RED) - Near the box to test the reaction
+            createEntity()
+                .add(Position(250f, 410f))
+                .add(Sprite(Color.Red, 20f))
+                .add(BoxCollider(width = 20f, height = 20f, response = CollisionResponse.EXPLODE))
+
+            // PAIR OF CLOSE MINES - To test the chain reaction
+            createEntity()
+                .add(Position(600f, 450f))
+                .add(Sprite(Color.Red, 20f))
+                .add(BoxCollider(width = 20f, height = 20f, response = CollisionResponse.EXPLODE))
+            createEntity()
+                .add(Position(615f, 450f))
+                .add(Sprite(Color.Red, 20f))
+                .add(BoxCollider(width = 20f, height = 20f, response = CollisionResponse.EXPLODE))
         }
     }
 
