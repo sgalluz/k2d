@@ -32,10 +32,8 @@ class ExplodeResolver : CollisionResolver {
 
         if (abs(dx) > abs(dy)) {
             vVel.x = explosionPower * dx.sign()
-            vVel.y = 0f
         } else {
             vVel.y = explosionPower * dy.sign()
-            vVel.x = 0f
         }
     }
 

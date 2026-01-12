@@ -422,4 +422,25 @@ class CollisionSystemTest {
         assertTrue(bomb.has<DeletionMark>(), "Bomb must explode when hit the wall")
         assertFalse(wall.has<Velocity>(), "The wall won't gain any Velocity from the collision")
     }
+
+    @Test
+    fun `EXPLODE should push victim without cancelling existing velocity on the other axis`() {
+        world.addSystem(CollisionSystem())
+
+        val bomb = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        val initialYVelocity = -200f
+        val player = world.createEntity()
+            .add(Position(140f, 100f))
+            .add(Velocity(0f, initialYVelocity))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+
+        world.update(0.016f)
+
+        val velocity = player.get<Velocity>()!!
+        assertTrue(velocity.x > 0f, "The player should be push to right")
+        assertEquals(initialYVelocity, velocity.y, "The original vertical velocity must be preserved")
+    }
 }
