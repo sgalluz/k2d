@@ -1,5 +1,6 @@
 package io.sgalluz.k2d.ecs.systems
 
+import io.sgalluz.k2d.ecs.BoxCollider
 import io.sgalluz.k2d.ecs.Entity
 import io.sgalluz.k2d.ecs.Position
 import io.sgalluz.k2d.ecs.Velocity
@@ -11,27 +12,42 @@ class BoundarySystem(
     override fun update(entities: List<Entity>, deltaTime: Float) {
         entities.forEach { entity ->
             val pos = entity.get<Position>() ?: return@forEach
-            val vel = entity.get<Velocity>() ?: return@forEach
+            val col = entity.get<BoxCollider>()
+            val vel = entity.get<Velocity>()
 
-            val (newX, newVelX) = bounce(pos.x, vel.x, 0f, width)
-            val (newY, newVelY) = bounce(pos.y, vel.y, 0f, height)
-
+            val (newX, newVelX) = applyBounds(
+                pos.x,
+                vel?.x ?: 0f,
+                col?.width ?: 0f,
+                width
+            )
             pos.x = newX
+            vel?.let { it.x = newVelX }
+
+            val (newY, newVelY) = applyBounds(
+                pos.y,
+                vel?.y ?: 0f,
+                col?.height ?: 0f,
+                height
+            )
             pos.y = newY
-            vel.x = newVelX
-            vel.y = newVelY
+            vel?.let { it.y = newVelY }
         }
     }
 
-    private fun bounce(
+    private fun applyBounds(
         position: Float,
         velocity: Float,
-        min: Float,
-        max: Float
-    ): Pair<Float, Float> =
-        when {
-            position >= max && velocity > 0 -> max to -velocity
-            position <= min && velocity < 0 -> min to -velocity
+        size: Float,
+        maxLimit: Float
+    ): Pair<Float, Float> {
+        val minLimit = 0f
+        val actualMax = maxLimit - size
+
+        return when {
+            position < minLimit -> minLimit to if (velocity < 0) -velocity else velocity
+            position > actualMax -> actualMax to if (velocity > 0) -velocity else velocity
             else -> position to velocity
         }
+    }
 }

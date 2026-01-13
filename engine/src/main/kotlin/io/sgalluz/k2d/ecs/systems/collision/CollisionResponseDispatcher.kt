@@ -10,6 +10,9 @@ class CollisionResponseDispatcher {
         val r2 = e2.get<BoxCollider>()!!.response
 
         when {
+            r1 == CollisionResponse.EXPLODE || r2 == CollisionResponse.EXPLODE ->
+                getResolver(CollisionResponse.EXPLODE).resolve(e1, e2, collisionManifold)
+
             r1 == CollisionResponse.STATIC || r2 == CollisionResponse.STATIC ->
                 getResolver(CollisionResponse.STATIC).resolve(e1, e2, collisionManifold)
 

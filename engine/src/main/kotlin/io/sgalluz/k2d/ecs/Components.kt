@@ -12,11 +12,14 @@ data class Sprite(val color: Color, val size: Float) : Component
 
 class PlayerInput : Component
 
+class DeletionMark : Component
+
 enum class CollisionResponse {
     NONE,
     STATIC,
     BOUNCE,
-    PUSH
+    PUSH,
+    EXPLODE
 }
 
 data class BoxCollider(

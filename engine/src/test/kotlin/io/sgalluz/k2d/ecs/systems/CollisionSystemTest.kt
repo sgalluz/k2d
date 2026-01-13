@@ -331,4 +331,116 @@ class CollisionSystemTest {
         assertEquals(50f, ball.get<Position>()!!.x, "Ball should be pushed out to X=50")
         assertTrue(ball.get<Velocity>()!!.x < 0, "Ball velocity should be reversed")
     }
+
+    @Test
+    fun `EXPLODE vs STATIC should mark bomb for deletion`() {
+        world.addSystem(CollisionSystem())
+
+        val bomb = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        val wall = world.createEntity()
+            .add(Position(140f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
+
+        world.update(0.016f)
+
+        assertTrue(bomb.has<DeletionMark>(), "The bomb should have the DeletionMark after the collision")
+    }
+
+    @Test
+    fun `EXPLODE vs BOUNCE should push the victim away`() {
+        world.addSystem(CollisionSystem())
+
+        val bomb = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        val player = world.createEntity()
+            .add(Position(140f, 100f))
+            .add(Velocity(0f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+
+        world.update(0.016f)
+
+        val velocity = player.get<Velocity>()!!
+        assertTrue(velocity.x > 0f, "The player should have a positive velocity on X axis")
+    }
+
+    @Test
+    fun `EXPLODE vs BOUNCE on Y axis should push the victim vertically`() {
+        world.addSystem(CollisionSystem())
+
+        val bomb = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        val player = world.createEntity()
+            .add(Position(100f, 140f))
+            .add(Velocity(0f, 0f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+
+        world.update(0.016f)
+
+        val velocity = player.get<Velocity>()!!
+        assertTrue(velocity.y > 0f, "The player should have a positive velocity on Y axis")
+    }
+
+    @Test
+    fun `EXPLODE vs EXPLODE should mark both bombs for deletion`() {
+        world.addSystem(CollisionSystem())
+
+        val bombA = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        val bombB = world.createEntity()
+            .add(Position(140f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        world.update(0.016f)
+
+        assertTrue(bombA.has<DeletionMark>(), "Bomb A should be marked for deletion")
+        assertTrue(bombB.has<DeletionMark>(), "Bomb B should be marked for deletion")
+    }
+
+    @Test
+    fun `EXPLODE vs STATIC should destroy bomb and not move the static wall`() {
+        world.addSystem(CollisionSystem())
+
+        val bomb = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        val wall = world.createEntity()
+            .add(Position(140f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
+
+        world.update(0.016f)
+
+        assertTrue(bomb.has<DeletionMark>(), "Bomb must explode when hit the wall")
+        assertFalse(wall.has<Velocity>(), "The wall won't gain any Velocity from the collision")
+    }
+
+    @Test
+    fun `EXPLODE should push victim without cancelling existing velocity on the other axis`() {
+        world.addSystem(CollisionSystem())
+
+        val bomb = world.createEntity()
+            .add(Position(100f, 100f))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+
+        val initialYVelocity = -200f
+        val player = world.createEntity()
+            .add(Position(140f, 100f))
+            .add(Velocity(0f, initialYVelocity))
+            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+
+        world.update(0.016f)
+
+        val velocity = player.get<Velocity>()!!
+        assertTrue(velocity.x > 0f, "The player should be push to right")
+        assertEquals(initialYVelocity, velocity.y, "The original vertical velocity must be preserved")
+    }
 }
