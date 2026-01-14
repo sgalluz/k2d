@@ -16,8 +16,6 @@ on:
     secrets:
       CODECOV_TOKEN:
         required: false
-      GITHUB_TOKEN:
-        required: false
 
 jobs:
   gradle-task:
