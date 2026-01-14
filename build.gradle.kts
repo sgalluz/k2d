@@ -4,6 +4,10 @@ plugins {
 }
 
 allprojects {
+    group = "io.github.sgalluz.k2d"
+    version = findProperty("versionName") as String?
+        ?: "0.0.1-SNAPSHOT"
+
     repositories {
         google()
         mavenCentral()
