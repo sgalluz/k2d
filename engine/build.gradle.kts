@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
     jacoco
+    `maven-publish`
 }
 
 dependencies {
@@ -74,4 +75,28 @@ tasks.jacocoTestCoverageVerification {
 
 tasks.check {
     dependsOn(tasks.jacocoTestCoverageVerification)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("engine") {
+            from(components["java"])
+
+            groupId = project.group.toString()
+            artifactId = "k2d-engine"
+            version = project.version.toString()
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/sgalluz/k2d")
+
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
