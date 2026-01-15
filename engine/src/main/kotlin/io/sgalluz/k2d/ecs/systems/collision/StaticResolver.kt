@@ -7,7 +7,11 @@ import io.sgalluz.k2d.ecs.Position
 import io.sgalluz.k2d.ecs.Velocity
 
 class StaticResolver : CollisionResolver {
-    override fun resolve(e1: Entity, e2: Entity, manifold: CollisionManifold) {
+    override fun resolve(
+        e1: Entity,
+        e2: Entity,
+        manifold: CollisionManifold,
+    ) {
         val c1 = e1.get<BoxCollider>()!!
 
         val isE1Mobile = c1.response != CollisionResponse.STATIC
@@ -25,7 +29,11 @@ class StaticResolver : CollisionResolver {
         applyPostResolutionEffects(e1, e2, manifold)
     }
 
-    private fun applyPostResolutionEffects(e1: Entity, e2: Entity, collisionManifold: CollisionManifold) {
+    private fun applyPostResolutionEffects(
+        e1: Entity,
+        e2: Entity,
+        collisionManifold: CollisionManifold,
+    ) {
         val mobile = if (e1.get<BoxCollider>()?.response != CollisionResponse.STATIC) e1 else e2
         val collider = mobile.get<BoxCollider>() ?: return
 

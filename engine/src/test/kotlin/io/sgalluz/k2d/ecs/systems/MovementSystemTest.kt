@@ -7,13 +7,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class MovementSystemTest {
-
     @Test
     fun `movement system should update position based on velocity`() {
         val world = World()
-        val entity = world.createEntity()
-            .add(Position(10f, 10f))
-            .add(Velocity(100f, 0f)) // Moving right at 100 units/sec
+        val entity =
+            world.createEntity()
+                .add(Position(10f, 10f))
+                .add(Velocity(100f, 0f)) // Moving right at 100 units/sec
 
         world.addSystem(MovementSystem())
 

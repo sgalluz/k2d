@@ -10,7 +10,7 @@ import io.sgalluz.k2d.runtime.compose.rememberGameLoop
 @Composable
 fun k2dCanvas(
     onUpdate: (Float) -> Unit,
-    onRender: DrawScope.() -> Unit
+    onRender: DrawScope.() -> Unit,
 ) {
     val gameLoop = rememberGameLoop(onUpdate)
     Canvas(modifier = Modifier.fillMaxSize()) {

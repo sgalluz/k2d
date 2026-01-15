@@ -1,0 +1,23 @@
+pre-commit:
+  parallel: false
+  commands:
+    ktlint-format:
+      run: ./gradlew ktlintFormat
+      fail_text: "ktlintFormat failed"
+
+    stage-formatted-kotlin:
+      run: |
+        FILES=$(git diff --cached --name-only -- '*.kt' '*.kts' || true)
+        
+        if [ -n "$FILES" ]; then
+          echo "✔ Staging ktlint-formatted files:"
+          echo "$FILES"
+          git add $FILES
+        fi
+
+pre-push:
+  parallel: true
+  commands:
+    ktlint-check:
+      run: ./gradlew ktlintCheck
+      fail_text: "ktlintCheck failed"

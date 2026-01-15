@@ -4,11 +4,6 @@ on:
   push:
     branches: [main]
 
-permissions:
-  contents: read
-  pull-requests: write
-  packages: write
-
 jobs:
   build:
     uses: ./.github/workflows/gradle-checks.yml
@@ -16,9 +11,18 @@ jobs:
       job-name: "Assemble Engine"
       task: "assemble"
 
+  lint:
+    uses: ./.github/workflows/gradle-checks.yml
+    with:
+      job-name: "Lint Engine"
+      task: "ktlintCheck"
+
   test:
     needs: build
     uses: ./.github/workflows/gradle-checks.yml
+    permissions:
+      contents: read
+      pull-requests: write
     with:
       job-name: "Test & Coverage Engine"
       task: "test :engine:jacocoTestReport"

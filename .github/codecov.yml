@@ -10,5 +10,4 @@ coverage:
         target: auto
     patch:
       default:
-        # FIXME: target: 80% -> to be reached asap
-        target: 50%
+        target: 80%

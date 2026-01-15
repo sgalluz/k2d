@@ -1,6 +1,11 @@
 package io.sgalluz.k2d.ecs.systems
 
-import io.sgalluz.k2d.ecs.*
+import io.sgalluz.k2d.ecs.BoxCollider
+import io.sgalluz.k2d.ecs.CollisionResponse
+import io.sgalluz.k2d.ecs.DeletionMark
+import io.sgalluz.k2d.ecs.Position
+import io.sgalluz.k2d.ecs.Velocity
+import io.sgalluz.k2d.ecs.World
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -8,8 +13,8 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.math.abs
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class CollisionSystemTest {
     private lateinit var world: World
@@ -23,13 +28,15 @@ class CollisionSystemTest {
 
     @Test
     fun `entities with overlapping BoxColliders should be detected`() {
-        val e1 = world.createEntity()
-            .add(Position(0f, 0f))
-            .add(BoxCollider(width = 50f, height = 50f))
+        val e1 =
+            world.createEntity()
+                .add(Position(0f, 0f))
+                .add(BoxCollider(width = 50f, height = 50f))
 
-        val e2 = world.createEntity()
-            .add(Position(40f, 40f))
-            .add(BoxCollider(width = 50f, height = 50f))
+        val e2 =
+            world.createEntity()
+                .add(Position(40f, 40f))
+                .add(BoxCollider(width = 50f, height = 50f))
 
         system.update(world.getEntities(), 0.016f)
 
@@ -100,9 +107,10 @@ class CollisionSystemTest {
     fun `should ignore entities missing Position or BoxCollider`() {
         world.createEntity().add(Position(0f, 0f)) // Only Position
         world.createEntity().add(BoxCollider(50f, 50f)) // Only Collider
-        val e3 = world.createEntity()
-            .add(Position(100f, 100f))
-            .add(BoxCollider(10f, 10f))
+        val e3 =
+            world.createEntity()
+                .add(Position(100f, 100f))
+                .add(BoxCollider(10f, 10f))
 
         system.update(world.getEntities(), 0.016f)
 
@@ -135,8 +143,10 @@ class CollisionSystemTest {
     @MethodSource("provideStaticResolutionScenarios")
     fun `static resolution should push mobile entity out of static entity correctly`(
         direction: String,
-        initialX: Float, initialY: Float,
-        expectedX: Float, expectedY: Float
+        initialX: Float,
+        initialY: Float,
+        expectedX: Float,
+        expectedY: Float,
     ) {
         // Wall fixed at (100, 100) with size 50x50
         world.createEntity()
@@ -144,9 +154,10 @@ class CollisionSystemTest {
             .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
 
         // Player with size 50x50 at variable initial position
-        val player = world.createEntity()
-            .add(Position(initialX, initialY))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.NONE))
+        val player =
+            world.createEntity()
+                .add(Position(initialX, initialY))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.NONE))
 
         system.update(world.getEntities(), 0.016f)
 
@@ -157,13 +168,14 @@ class CollisionSystemTest {
 
     companion object {
         @JvmStatic
-        fun provideStaticResolutionScenarios() = listOf(
-            // Arguments: Direction, InitialX, InitialY, ExpectedX, ExpectedY
-            Arguments.of("LEFT", 60f, 100f, 50f, 100f),
-            Arguments.of("RIGHT", 140f, 100f, 150f, 100f),
-            Arguments.of("TOP", 100f, 60f, 100f, 50f),
-            Arguments.of("BOTTOM", 100f, 140f, 100f, 150f)
-        )
+        fun provideStaticResolutionScenarios() =
+            listOf(
+                // Arguments: Direction, InitialX, InitialY, ExpectedX, ExpectedY
+                Arguments.of("LEFT", 60f, 100f, 50f, 100f),
+                Arguments.of("RIGHT", 140f, 100f, 150f, 100f),
+                Arguments.of("TOP", 100f, 60f, 100f, 50f),
+                Arguments.of("BOTTOM", 100f, 140f, 100f, 150f),
+            )
     }
 
     @Test
@@ -179,9 +191,10 @@ class CollisionSystemTest {
 
         // Player (50x50) stuck in the corner
         // Position (120, 80) -> Pass through the floor (Y) and wall (X)
-        val player = world.createEntity()
-            .add(Position(120f, 80f))
-            .add(BoxCollider(width = 50f, height = 50f))
+        val player =
+            world.createEntity()
+                .add(Position(120f, 80f))
+                .add(BoxCollider(width = 50f, height = 50f))
 
         // Act
         system.update(world.getEntities(), 0.016f)
@@ -198,15 +211,17 @@ class CollisionSystemTest {
     @Test
     fun `dynamic resolution should make entities bounce (swap velocities)`() {
         // Arrange
-        val e1 = world.createEntity()
-            .add(Position(40f, 100f))
-            .add(Velocity(100f, 0f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+        val e1 =
+            world.createEntity()
+                .add(Position(40f, 100f))
+                .add(Velocity(100f, 0f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
 
-        val e2 = world.createEntity()
-            .add(Position(60f, 100f))
-            .add(Velocity(-100f, 0f)) // imminent collision (30px overlap)
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+        val e2 =
+            world.createEntity()
+                .add(Position(60f, 100f))
+                .add(Velocity(-100f, 0f)) // imminent collision (30px overlap)
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
 
         // Act
         system.update(world.getEntities(), 0.016f)
@@ -221,9 +236,10 @@ class CollisionSystemTest {
 
     @Test
     fun `entities with response NONE should detect collision but not move`() {
-        val e1 = world.createEntity()
-            .add(Position(0f, 0f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.NONE))
+        val e1 =
+            world.createEntity()
+                .add(Position(0f, 0f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.NONE))
 
         world.createEntity()
             .add(Position(10f, 0f))
@@ -239,15 +255,17 @@ class CollisionSystemTest {
 
     @Test
     fun `bounce resolution should handle vertical collisions`() {
-        val e1 = world.createEntity()
-            .add(Position(0f, 0f))
-            .add(Velocity(0f, 100f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+        val e1 =
+            world.createEntity()
+                .add(Position(0f, 0f))
+                .add(Velocity(0f, 100f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
 
-        val e2 = world.createEntity()
-            .add(Position(0f, 40f))
-            .add(Velocity(0f, -100f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+        val e2 =
+            world.createEntity()
+                .add(Position(0f, 40f))
+                .add(Velocity(0f, -100f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
 
         system.update(world.getEntities(), 0.016f)
 
@@ -257,14 +275,16 @@ class CollisionSystemTest {
 
     @Test
     fun `BOUNCE entity should bounce off STATIC entity`() {
-        val wall = world.createEntity()
+        // wall
+        world.createEntity()
             .add(Position(100f, 0f))
             .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
 
-        val ball = world.createEntity()
-            .add(Position(60f, 0f))
-            .add(Velocity(100f, 0f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+        val ball =
+            world.createEntity()
+                .add(Position(60f, 0f))
+                .add(Velocity(100f, 0f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
 
         system.update(world.getEntities(), 0.016f)
 
@@ -274,15 +294,17 @@ class CollisionSystemTest {
 
     @Test
     fun `PUSH vs PUSH on X axis should resolve position but maintain velocity`() {
-        val e1 = world.createEntity()
-            .add(Position(0f, 0f))
-            .add(Velocity(100f, 0f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
+        val e1 =
+            world.createEntity()
+                .add(Position(0f, 0f))
+                .add(Velocity(100f, 0f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
 
-        val e2 = world.createEntity()
-            .add(Position(40f, 0f))
-            .add(Velocity(0f, 0f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
+        val e2 =
+            world.createEntity()
+                .add(Position(40f, 0f))
+                .add(Velocity(0f, 0f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
 
         system.update(world.getEntities(), 0.016f)
 
@@ -295,15 +317,17 @@ class CollisionSystemTest {
 
     @Test
     fun `PUSH vs PUSH on Y axis should resolve position but maintain velocity`() {
-        val e1 = world.createEntity()
-            .add(Position(0f, 0f))
-            .add(Velocity(0f, 100f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
+        val e1 =
+            world.createEntity()
+                .add(Position(0f, 0f))
+                .add(Velocity(0f, 100f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
 
-        val e2 = world.createEntity()
-            .add(Position(0f, 40f))
-            .add(Velocity(0f, 0f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
+        val e2 =
+            world.createEntity()
+                .add(Position(0f, 40f))
+                .add(Velocity(0f, 0f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.PUSH))
 
         system.update(world.getEntities(), 0.016f)
 
@@ -317,14 +341,16 @@ class CollisionSystemTest {
 
     @Test
     fun `BOUNCE vs STATIC should resolve position and reverse velocity`() {
-        val wall = world.createEntity()
+        // wall
+        world.createEntity()
             .add(Position(100f, 0f))
             .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
 
-        val ball = world.createEntity()
-            .add(Position(60f, 0f))
-            .add(Velocity(100f, 0f)) // Va verso destra (muro)
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+        val ball =
+            world.createEntity()
+                .add(Position(60f, 0f))
+                .add(Velocity(100f, 0f)) // Va verso destra (muro)
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
 
         system.update(world.getEntities(), 0.016f)
 
@@ -336,13 +362,15 @@ class CollisionSystemTest {
     fun `EXPLODE vs STATIC should mark bomb for deletion`() {
         world.addSystem(CollisionSystem())
 
-        val bomb = world.createEntity()
-            .add(Position(100f, 100f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
-
-        val wall = world.createEntity()
+        // wall
+        world.createEntity()
             .add(Position(140f, 100f))
             .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
+
+        val bomb =
+            world.createEntity()
+                .add(Position(100f, 100f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
 
         world.update(0.016f)
 
@@ -353,14 +381,16 @@ class CollisionSystemTest {
     fun `EXPLODE vs BOUNCE should push the victim away`() {
         world.addSystem(CollisionSystem())
 
-        val bomb = world.createEntity()
+        // bomb
+        world.createEntity()
             .add(Position(100f, 100f))
             .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
 
-        val player = world.createEntity()
-            .add(Position(140f, 100f))
-            .add(Velocity(0f, 0f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+        val player =
+            world.createEntity()
+                .add(Position(140f, 100f))
+                .add(Velocity(0f, 0f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
 
         world.update(0.016f)
 
@@ -372,14 +402,16 @@ class CollisionSystemTest {
     fun `EXPLODE vs BOUNCE on Y axis should push the victim vertically`() {
         world.addSystem(CollisionSystem())
 
-        val bomb = world.createEntity()
+        // bomb
+        world.createEntity()
             .add(Position(100f, 100f))
             .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
 
-        val player = world.createEntity()
-            .add(Position(100f, 140f))
-            .add(Velocity(0f, 0f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+        val player =
+            world.createEntity()
+                .add(Position(100f, 140f))
+                .add(Velocity(0f, 0f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
 
         world.update(0.016f)
 
@@ -391,13 +423,15 @@ class CollisionSystemTest {
     fun `EXPLODE vs EXPLODE should mark both bombs for deletion`() {
         world.addSystem(CollisionSystem())
 
-        val bombA = world.createEntity()
-            .add(Position(100f, 100f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+        val bombA =
+            world.createEntity()
+                .add(Position(100f, 100f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
 
-        val bombB = world.createEntity()
-            .add(Position(140f, 100f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+        val bombB =
+            world.createEntity()
+                .add(Position(140f, 100f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
 
         world.update(0.016f)
 
@@ -409,13 +443,15 @@ class CollisionSystemTest {
     fun `EXPLODE vs STATIC should destroy bomb and not move the static wall`() {
         world.addSystem(CollisionSystem())
 
-        val bomb = world.createEntity()
-            .add(Position(100f, 100f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
+        val bomb =
+            world.createEntity()
+                .add(Position(100f, 100f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
 
-        val wall = world.createEntity()
-            .add(Position(140f, 100f))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
+        val wall =
+            world.createEntity()
+                .add(Position(140f, 100f))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.STATIC))
 
         world.update(0.016f)
 
@@ -427,15 +463,17 @@ class CollisionSystemTest {
     fun `EXPLODE should push victim without cancelling existing velocity on the other axis`() {
         world.addSystem(CollisionSystem())
 
-        val bomb = world.createEntity()
+        // bomb
+        world.createEntity()
             .add(Position(100f, 100f))
             .add(BoxCollider(50f, 50f, response = CollisionResponse.EXPLODE))
 
         val initialYVelocity = -200f
-        val player = world.createEntity()
-            .add(Position(140f, 100f))
-            .add(Velocity(0f, initialYVelocity))
-            .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
+        val player =
+            world.createEntity()
+                .add(Position(140f, 100f))
+                .add(Velocity(0f, initialYVelocity))
+                .add(BoxCollider(50f, 50f, response = CollisionResponse.BOUNCE))
 
         world.update(0.016f)
 

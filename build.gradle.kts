@@ -1,6 +1,9 @@
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
+
 plugins {
     kotlin("jvm") version "1.9.21" apply false
     id("org.jetbrains.compose") version "1.5.11" apply false
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0" apply false
 }
 
 val versionProps = rootProject.file("version.properties")
@@ -28,6 +31,15 @@ allprojects {
 
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    configure<KtlintExtension> {
+        version.set("1.1.1")
+        android.set(false)
+        outputToConsole.set(true)
+        coloredOutput.set(true)
+        ignoreFailures.set(false)
+    }
 
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()

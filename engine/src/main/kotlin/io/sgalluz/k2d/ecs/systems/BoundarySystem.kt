@@ -7,29 +7,34 @@ import io.sgalluz.k2d.ecs.Velocity
 
 class BoundarySystem(
     private val width: Float,
-    private val height: Float
+    private val height: Float,
 ) : GameSystem {
-    override fun update(entities: List<Entity>, deltaTime: Float) {
+    override fun update(
+        entities: List<Entity>,
+        deltaTime: Float,
+    ) {
         entities.forEach { entity ->
             val pos = entity.get<Position>() ?: return@forEach
             val col = entity.get<BoxCollider>()
             val vel = entity.get<Velocity>()
 
-            val (newX, newVelX) = applyBounds(
-                pos.x,
-                vel?.x ?: 0f,
-                col?.width ?: 0f,
-                width
-            )
+            val (newX, newVelX) =
+                applyBounds(
+                    pos.x,
+                    vel?.x ?: 0f,
+                    col?.width ?: 0f,
+                    width,
+                )
             pos.x = newX
             vel?.let { it.x = newVelX }
 
-            val (newY, newVelY) = applyBounds(
-                pos.y,
-                vel?.y ?: 0f,
-                col?.height ?: 0f,
-                height
-            )
+            val (newY, newVelY) =
+                applyBounds(
+                    pos.y,
+                    vel?.y ?: 0f,
+                    col?.height ?: 0f,
+                    height,
+                )
             pos.y = newY
             vel?.let { it.y = newVelY }
         }
@@ -39,7 +44,7 @@ class BoundarySystem(
         position: Float,
         velocity: Float,
         size: Float,
-        maxLimit: Float
+        maxLimit: Float,
     ): Pair<Float, Float> {
         val minLimit = 0f
         val actualMax = maxLimit - size

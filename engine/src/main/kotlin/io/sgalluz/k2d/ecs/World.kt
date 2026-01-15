@@ -10,7 +10,6 @@ class World {
     private val entities = mutableListOf<Entity>()
     private val logicSystems = mutableListOf<GameSystem>()
 
-
     /**
      * Creates and adds a new entity to the world.
      */

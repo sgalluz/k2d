@@ -1,14 +1,17 @@
 package io.sgalluz.k2d.runtime.compose
 
-import androidx.compose.runtime.*
-import kotlinx.coroutines.isActive
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameNanos
 import io.sgalluz.k2d.core.GameLoop
 import io.sgalluz.k2d.runtime.GameLoopClock
+import kotlinx.coroutines.isActive
 
 @Composable
-fun rememberGameLoop(
-    onUpdate: (Float) -> Unit
-): GameLoopClock {
+fun rememberGameLoop(onUpdate: (Float) -> Unit): GameLoopClock {
     val gameLoop = remember { GameLoop(onUpdate = onUpdate) }
     val frameState = remember { mutableStateOf(0L) }
 

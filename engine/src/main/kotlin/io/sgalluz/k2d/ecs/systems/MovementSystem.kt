@@ -5,7 +5,10 @@ import io.sgalluz.k2d.ecs.Position
 import io.sgalluz.k2d.ecs.Velocity
 
 class MovementSystem : GameSystem {
-    override fun update(entities: List<Entity>, deltaTime: Float) {
+    override fun update(
+        entities: List<Entity>,
+        deltaTime: Float,
+    ) {
         entities.forEach { entity ->
             val pos = entity.get<Position>()
             val vel = entity.get<Velocity>()

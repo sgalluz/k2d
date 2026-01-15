@@ -9,7 +9,10 @@ import io.sgalluz.k2d.ecs.systems.GameSystem
 class InputSystem(private val pressedKeys: List<Key>) : GameSystem {
     private val speed = 200f
 
-    override fun update(entities: List<Entity>, deltaTime: Float) {
+    override fun update(
+        entities: List<Entity>,
+        deltaTime: Float,
+    ) {
         entities.forEach { entity ->
             val vel = entity.get<Velocity>() ?: return@forEach
             if (entity.get<PlayerInput>() == null) return@forEach

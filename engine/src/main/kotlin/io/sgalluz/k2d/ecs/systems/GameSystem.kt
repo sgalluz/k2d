@@ -12,5 +12,8 @@ interface GameSystem {
      * @param entities List of all entities in the world.
      * @param deltaTime Time elapsed since the last frame in seconds.
      */
-    fun update(entities: List<Entity>, deltaTime: Float)
+    fun update(
+        entities: List<Entity>,
+        deltaTime: Float,
+    )
 }

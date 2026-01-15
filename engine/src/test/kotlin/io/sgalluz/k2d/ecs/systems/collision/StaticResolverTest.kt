@@ -15,12 +15,13 @@ class StaticResolverTest {
         val e1 = entity(x = 0f, y = 0f, response = CollisionResponse.BOUNCE)
         val e2 = entity(x = 1f, y = 0f, response = CollisionResponse.STATIC)
 
-        val manifold = CollisionManifold(
-            overlapX = 1f,
-            overlapY = 10f,
-            deltaX = -1f,
-            deltaY = 0f
-        )
+        val manifold =
+            CollisionManifold(
+                overlapX = 1f,
+                overlapY = 10f,
+                deltaX = -1f,
+                deltaY = 0f,
+            )
 
         resolver.resolve(e1, e2, manifold)
 
@@ -36,12 +37,13 @@ class StaticResolverTest {
         val e1 = entity(x = 1f, y = 0f, response = CollisionResponse.BOUNCE)
         val e2 = entity(x = 0f, y = 0f, response = CollisionResponse.STATIC)
 
-        val manifold = CollisionManifold(
-            overlapX = 1f,
-            overlapY = 10f,
-            deltaX = 1f,
-            deltaY = 0f
-        )
+        val manifold =
+            CollisionManifold(
+                overlapX = 1f,
+                overlapY = 10f,
+                deltaX = 1f,
+                deltaY = 0f,
+            )
 
         resolver.resolve(e1, e2, manifold)
 
@@ -55,12 +57,13 @@ class StaticResolverTest {
         val e1 = entity(x = 0f, y = 0f, response = CollisionResponse.STATIC)
         val e2 = entity(x = 0f, y = 1f, response = CollisionResponse.BOUNCE)
 
-        val manifold = CollisionManifold(
-            overlapX = 10f,
-            overlapY = 1f,
-            deltaX = 0f,
-            deltaY = -1f
-        )
+        val manifold =
+            CollisionManifold(
+                overlapX = 10f,
+                overlapY = 1f,
+                deltaX = 0f,
+                deltaY = -1f,
+            )
 
         resolver.resolve(e1, e2, manifold)
 
@@ -76,12 +79,13 @@ class StaticResolverTest {
         val e1 = entity(x = 0f, y = 0f, response = CollisionResponse.STATIC)
         val e2 = entity(x = 0f, y = -1f, response = CollisionResponse.BOUNCE)
 
-        val manifold = CollisionManifold(
-            overlapX = 10f,
-            overlapY = 1f,
-            deltaX = 0f,
-            deltaY = 1f
-        )
+        val manifold =
+            CollisionManifold(
+                overlapX = 10f,
+                overlapY = 1f,
+                deltaX = 0f,
+                deltaY = 1f,
+            )
 
         resolver.resolve(e1, e2, manifold)
 
@@ -93,7 +97,7 @@ class StaticResolverTest {
     private fun entity(
         x: Float,
         y: Float,
-        response: CollisionResponse
+        response: CollisionResponse,
     ): Entity =
         Entity(System.currentTimeMillis().toInt()).apply {
             add(Position(x, y))
