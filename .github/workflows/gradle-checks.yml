@@ -21,10 +21,6 @@ jobs:
   gradle-task:
     name: Gradle | ${{ inputs.job-name }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
