@@ -62,13 +62,13 @@ tasks.jacocoTestCoverageVerification {
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
-                minimum = "0.50".toBigDecimal() // FIXME: should reach 0.80 asap
+                minimum = "0.80".toBigDecimal()
             }
 
             limit {
                 counter = "BRANCH"
                 value = "COVEREDRATIO"
-                minimum = "0.20".toBigDecimal() // FIXME: should reach 0.70 asap
+                minimum = "0.70".toBigDecimal()
             }
         }
     }
