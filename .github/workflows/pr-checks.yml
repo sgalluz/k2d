@@ -7,12 +7,18 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/gradle-checks.yml
+    permissions:
+      contents: read
+      packages: write
     with:
       job-name: "Assemble Engine"
       task: "assemble"
 
   lint:
     uses: ./.github/workflows/gradle-checks.yml
+    permissions:
+      contents: read
+      packages: write
     with:
       job-name: "Lint Engine"
       task: "ktlintCheck"
@@ -22,6 +28,7 @@ jobs:
     uses: ./.github/workflows/gradle-checks.yml
     permissions:
       contents: read
+      packages: write
       pull-requests: write
     with:
       job-name: "Test & Coverage Engine"
