@@ -5,7 +5,11 @@ import io.sgalluz.k2d.ecs.CollisionResponse
 import io.sgalluz.k2d.ecs.Entity
 
 class CollisionResponseDispatcher {
-    fun dispatch(e1: Entity, e2: Entity, collisionManifold: CollisionManifold) {
+    fun dispatch(
+        e1: Entity,
+        e2: Entity,
+        collisionManifold: CollisionManifold,
+    ) {
         val r1 = e1.get<BoxCollider>()!!.response
         val r2 = e2.get<BoxCollider>()!!.response
 

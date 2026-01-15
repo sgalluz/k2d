@@ -14,12 +14,13 @@ class BounceResolverTest {
         val e1 = entity(x = 0f, y = 0f, vx = 1f, vy = 0f)
         val e2 = entity(x = 1f, y = 0f, vx = -1f, vy = 0f)
 
-        val manifold = CollisionManifold(
-            overlapX = 1f,
-            overlapY = 3f,
-            deltaX = -1f,
-            deltaY = 0f
-        )
+        val manifold =
+            CollisionManifold(
+                overlapX = 1f,
+                overlapY = 3f,
+                deltaX = -1f,
+                deltaY = 0f,
+            )
 
         resolver.resolve(e1, e2, manifold)
 
@@ -43,12 +44,13 @@ class BounceResolverTest {
         val e1 = entity(x = 0f, y = 0f, vx = 0f, vy = 1f)
         val e2 = entity(x = 0f, y = 1f, vx = 0f, vy = -1f)
 
-        val manifold = CollisionManifold(
-            overlapX = 3f,
-            overlapY = 1f,
-            deltaX = 0f,
-            deltaY = -1f
-        )
+        val manifold =
+            CollisionManifold(
+                overlapX = 3f,
+                overlapY = 1f,
+                deltaX = 0f,
+                deltaY = -1f,
+            )
 
         resolver.resolve(e1, e2, manifold)
 
@@ -72,12 +74,13 @@ class BounceResolverTest {
         val e1 = entity(x = 0f, y = 0f, vx = 0f, vy = 0f)
         val e2 = entity(x = 0.8f, y = 0f, vx = 0f, vy = 0f)
 
-        val manifold = CollisionManifold(
-            overlapX = 0.4f,
-            overlapY = 10f,
-            deltaX = -0.8f,
-            deltaY = 0f
-        )
+        val manifold =
+            CollisionManifold(
+                overlapX = 0.4f,
+                overlapY = 10f,
+                deltaX = -0.8f,
+                deltaY = 0f,
+            )
 
         resolver.resolve(e1, e2, manifold)
 
@@ -93,12 +96,13 @@ class BounceResolverTest {
         val e1 = entity(x = 1f, y = 0f, vx = 1f, vy = 0f)
         val e2 = entity(x = 0f, y = 0f, vx = -1f, vy = 0f)
 
-        val manifold = CollisionManifold(
-            overlapX = 1f,
-            overlapY = 3f,
-            deltaX = 1f,
-            deltaY = 0f
-        )
+        val manifold =
+            CollisionManifold(
+                overlapX = 1f,
+                overlapY = 3f,
+                deltaX = 1f,
+                deltaY = 0f,
+            )
 
         resolver.resolve(e1, e2, manifold)
 
@@ -119,12 +123,13 @@ class BounceResolverTest {
         val e1 = entity(x = 0f, y = 1f, vx = 0f, vy = 1f)
         val e2 = entity(x = 0f, y = 0f, vx = 0f, vy = -1f)
 
-        val manifold = CollisionManifold(
-            overlapX = 3f,
-            overlapY = 1f,
-            deltaX = 0f,
-            deltaY = 1f
-        )
+        val manifold =
+            CollisionManifold(
+                overlapX = 3f,
+                overlapY = 1f,
+                deltaX = 0f,
+                deltaY = 1f,
+            )
 
         resolver.resolve(e1, e2, manifold)
 
@@ -144,7 +149,7 @@ class BounceResolverTest {
         x: Float,
         y: Float,
         vx: Float,
-        vy: Float
+        vy: Float,
     ): Entity =
         Entity(System.currentTimeMillis().toInt()).apply {
             add(Position(x, y))

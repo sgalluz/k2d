@@ -4,7 +4,7 @@ data class CollisionManifold(
     val overlapX: Float,
     val overlapY: Float,
     val deltaX: Float,
-    val deltaY: Float
+    val deltaY: Float,
 ) {
     val isXAxis = overlapX < overlapY
     val primaryOverlap = if (isXAxis) overlapX else overlapY

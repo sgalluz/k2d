@@ -10,7 +10,10 @@ import io.sgalluz.k2d.ecs.Position
 import io.sgalluz.k2d.ecs.Sprite
 
 class ShapeRenderSystem : RenderSystem {
-    override fun render(entities: List<Entity>, drawScope: DrawScope) {
+    override fun render(
+        entities: List<Entity>,
+        drawScope: DrawScope,
+    ) {
         entities.forEach { entity ->
             val pos = entity.get<Position>()
             val sprite = entity.get<Sprite>()
@@ -21,7 +24,7 @@ class ShapeRenderSystem : RenderSystem {
                 drawScope.drawRect(
                     color = drawColor,
                     topLeft = Offset(pos.x, pos.y),
-                    size = Size(sprite.size, sprite.size)
+                    size = Size(sprite.size, sprite.size),
                 )
             }
         }

@@ -16,12 +16,13 @@ class InputSystemTest {
     fun `should update Velocity when directional keys are pressed`(
         keyCode: Long,
         expectedX: Float,
-        expectedY: Float
+        expectedY: Float,
     ) {
         val world = World()
-        val player = world.createEntity()
-            .add(Velocity(0f, 0f))
-            .add(PlayerInput())
+        val player =
+            world.createEntity()
+                .add(Velocity(0f, 0f))
+                .add(PlayerInput())
         val inputSystem = InputSystem(listOf(Key(keyCode)))
 
         inputSystem.update(world.getEntities(), 0.016f)
@@ -34,9 +35,10 @@ class InputSystemTest {
     @Test
     fun `should handle opposite keys by canceling movement`() {
         val world = World()
-        val player = world.createEntity()
-            .add(Velocity(0f, 0f))
-            .add(PlayerInput())
+        val player =
+            world.createEntity()
+                .add(Velocity(0f, 0f))
+                .add(PlayerInput())
 
         val pressedKeys = mutableListOf(Key.DirectionRight, Key.DirectionLeft)
         val inputSystem = InputSystem(pressedKeys)
@@ -69,11 +71,12 @@ class InputSystemTest {
 
     companion object {
         @JvmStatic
-        fun provideDirectionalInput(): List<Arguments> = listOf(
-            Arguments.of(Key.DirectionRight.keyCode, 200f, 0f),
-            Arguments.of(Key.DirectionLeft.keyCode, -200f, 0f),
-            Arguments.of(Key.DirectionUp.keyCode, 0f, -200f),
-            Arguments.of(Key.DirectionDown.keyCode, 0f, 200f)
-        )
+        fun provideDirectionalInput(): List<Arguments> =
+            listOf(
+                Arguments.of(Key.DirectionRight.keyCode, 200f, 0f),
+                Arguments.of(Key.DirectionLeft.keyCode, -200f, 0f),
+                Arguments.of(Key.DirectionUp.keyCode, 0f, -200f),
+                Arguments.of(Key.DirectionDown.keyCode, 0f, 200f),
+            )
     }
 }

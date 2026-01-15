@@ -1,9 +1,18 @@
 package io.sgalluz.k2d.ecs.systems.collision
 
-import io.mockk.*
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkAll
+import io.mockk.verify
 import io.sgalluz.k2d.ecs.BoxCollider
 import io.sgalluz.k2d.ecs.CollisionResponse
-import io.sgalluz.k2d.ecs.CollisionResponse.*
+import io.sgalluz.k2d.ecs.CollisionResponse.BOUNCE
+import io.sgalluz.k2d.ecs.CollisionResponse.EXPLODE
+import io.sgalluz.k2d.ecs.CollisionResponse.NONE
+import io.sgalluz.k2d.ecs.CollisionResponse.PUSH
+import io.sgalluz.k2d.ecs.CollisionResponse.STATIC
 import io.sgalluz.k2d.ecs.Entity
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
@@ -18,12 +27,13 @@ import java.util.stream.Stream
 class CollisionResponseDispatcherTest {
     private val dispatcher = CollisionResponseDispatcher()
 
-    private val manifold = CollisionManifold(
-        overlapX = 1f,
-        overlapY = 2f,
-        deltaX = 0f,
-        deltaY = 0f
-    )
+    private val manifold =
+        CollisionManifold(
+            overlapX = 1f,
+            overlapY = 2f,
+            deltaX = 0f,
+            deltaY = 0f,
+        )
 
     private lateinit var resolver: CollisionResolver
 
@@ -40,13 +50,13 @@ class CollisionResponseDispatcherTest {
     @Nested
     inner class DispatchBehaviour {
         @ParameterizedTest(
-            name = "r1={0}, r2={1} -> expected resolver={2}"
+            name = "r1={0}, r2={1} -> expected resolver={2}",
         )
         @MethodSource("dispatchCases")
         fun `dispatcher selects correct resolver and invokes it`(
             r1: CollisionResponse,
             r2: CollisionResponse,
-            expected: CollisionResponse
+            expected: CollisionResponse,
         ) {
             every {
                 CollisionResolverFactory.getResolver(expected)
@@ -71,17 +81,14 @@ class CollisionResponseDispatcherTest {
                 // EXPLODE
                 Arguments.of(EXPLODE, BOUNCE, EXPLODE),
                 Arguments.of(PUSH, EXPLODE, EXPLODE),
-
                 // STATIC
                 Arguments.of(STATIC, BOUNCE, STATIC),
                 Arguments.of(PUSH, STATIC, STATIC),
-
                 // BOUNCE
                 Arguments.of(BOUNCE, BOUNCE, BOUNCE),
-
                 // PUSH
                 Arguments.of(PUSH, PUSH, PUSH),
-                Arguments.of(PUSH, NONE, PUSH)
+                Arguments.of(PUSH, NONE, PUSH),
             )
     }
 

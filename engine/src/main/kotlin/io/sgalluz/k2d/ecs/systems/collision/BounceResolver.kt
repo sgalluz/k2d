@@ -5,7 +5,11 @@ import io.sgalluz.k2d.ecs.Position
 import io.sgalluz.k2d.ecs.Velocity
 
 class BounceResolver : CollisionResolver {
-    override fun resolve(e1: Entity, e2: Entity, manifold: CollisionManifold) {
+    override fun resolve(
+        e1: Entity,
+        e2: Entity,
+        manifold: CollisionManifold,
+    ) {
         val position1 = e1.get<Position>()!!
         val velocity1 = e1.get<Velocity>()!!
         val position2 = e2.get<Position>()!!

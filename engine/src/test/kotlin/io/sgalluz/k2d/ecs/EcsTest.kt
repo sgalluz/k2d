@@ -2,12 +2,11 @@ package io.sgalluz.k2d.ecs
 
 import io.sgalluz.k2d.ecs.systems.GameSystem
 import kotlin.test.Test
-import kotlin.test.assertNotNull
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 
 class EcsTest {
-
     @Test
     fun `entities should store and retrieve components`() {
         val entity = Entity(id = 1)
@@ -25,12 +24,16 @@ class EcsTest {
         val world = World()
         var systemCalled = false
 
-        val testSystem = object : GameSystem {
-            // Add the entities parameter here to respect the interface
-            override fun update(entities: List<Entity>, deltaTime: Float) {
-                systemCalled = true
+        val testSystem =
+            object : GameSystem {
+                // Add the entities parameter here to respect the interface
+                override fun update(
+                    entities: List<Entity>,
+                    deltaTime: Float,
+                ) {
+                    systemCalled = true
+                }
             }
-        }
 
         world.addSystem(testSystem)
         world.update(0.16f)

@@ -7,7 +7,6 @@ import org.junit.Test
 import kotlin.test.assertTrue
 
 class RememberGameLoopTest {
-
     @get:Rule
     val composeRule = createComposeRule()
 

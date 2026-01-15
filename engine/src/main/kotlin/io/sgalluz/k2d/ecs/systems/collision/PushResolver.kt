@@ -4,7 +4,11 @@ import io.sgalluz.k2d.ecs.Entity
 import io.sgalluz.k2d.ecs.Position
 
 class PushResolver : CollisionResolver {
-    override fun resolve(e1: Entity, e2: Entity, manifold: CollisionManifold) {
+    override fun resolve(
+        e1: Entity,
+        e2: Entity,
+        manifold: CollisionManifold,
+    ) {
         val p1 = e1.get<Position>()!!
         val p2 = e2.get<Position>()!!
 

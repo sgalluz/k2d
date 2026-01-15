@@ -1,7 +1,12 @@
 package io.sgalluz.k2d.ecs.systems
 
-import io.sgalluz.k2d.ecs.*
-import org.junit.jupiter.api.Assertions.*
+import io.sgalluz.k2d.ecs.BoxCollider
+import io.sgalluz.k2d.ecs.Entity
+import io.sgalluz.k2d.ecs.Position
+import io.sgalluz.k2d.ecs.Velocity
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -19,31 +24,32 @@ class BoundarySystemTest {
         vx: Float? = null,
         vy: Float? = null,
         w: Float? = null,
-        h: Float? = null
-    ): Entity = Entity(1).apply {
-        if (x != null && y != null) add(Position(x, y))
-        if (vx != null && vy != null) add(Velocity(vx, vy))
-        if (w != null && h != null) add(BoxCollider(w, h))
-    }
+        h: Float? = null,
+    ): Entity =
+        Entity(1).apply {
+            if (x != null && y != null) add(Position(x, y))
+            if (vx != null && vy != null) add(Velocity(vx, vy))
+            if (w != null && h != null) add(BoxCollider(w, h))
+        }
 
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @Nested
     inner class BoundsCorrection {
-
         @ParameterizedTest(name = "X axis correction: pos={0}, vel={1}")
         @MethodSource("xAxisCases")
         fun `entity is clamped and velocity adjusted on X axis`(
             startX: Float,
             startVelX: Float,
             expectedX: Float,
-            expectedVelX: Float
+            expectedVelX: Float,
         ) {
-            val entity = entity(
-                x = startX,
-                y = 100f,
-                vx = startVelX,
-                vy = 0f
-            )
+            val entity =
+                entity(
+                    x = startX,
+                    y = 100f,
+                    vx = startVelX,
+                    vy = 0f,
+                )
 
             boundarySystem.update(listOf(entity), 0.016f)
 
@@ -60,14 +66,15 @@ class BoundarySystemTest {
             startY: Float,
             startVelY: Float,
             expectedY: Float,
-            expectedVelY: Float
+            expectedVelY: Float,
         ) {
-            val entity = entity(
-                x = 100f,
-                y = startY,
-                vx = 0f,
-                vy = startVelY
-            )
+            val entity =
+                entity(
+                    x = 100f,
+                    y = startY,
+                    vx = 0f,
+                    vy = startVelY,
+                )
 
             boundarySystem.update(listOf(entity), 0.016f)
 
@@ -84,7 +91,7 @@ class BoundarySystemTest {
                 Arguments.of(-10f, 20f, 0f, 20f),
                 Arguments.of(810f, 30f, 800f, -30f),
                 Arguments.of(810f, -30f, 800f, -30f),
-                Arguments.of(400f, 10f, 400f, 10f)
+                Arguments.of(400f, 10f, 400f, 10f),
             )
 
         fun yAxisCases(): Stream<Arguments> =
@@ -93,23 +100,23 @@ class BoundarySystemTest {
                 Arguments.of(-10f, 20f, 0f, 20f),
                 Arguments.of(610f, 30f, 600f, -30f),
                 Arguments.of(610f, -30f, 600f, -30f),
-                Arguments.of(300f, 10f, 300f, 10f)
+                Arguments.of(300f, 10f, 300f, 10f),
             )
     }
 
     @Nested
     inner class ColliderAwareBounds {
-
         @Test
         fun `entity respects width when clamped on X axis`() {
-            val entity = entity(
-                x = 790f,
-                y = 100f,
-                vx = 100f,
-                vy = 0f,
-                w = 50f,
-                h = 50f
-            )
+            val entity =
+                entity(
+                    x = 790f,
+                    y = 100f,
+                    vx = 100f,
+                    vy = 0f,
+                    w = 50f,
+                    h = 50f,
+                )
 
             boundarySystem.update(listOf(entity), 0.016f)
 
@@ -119,14 +126,15 @@ class BoundarySystemTest {
 
         @Test
         fun `entity respects height when clamped on Y axis`() {
-            val entity = entity(
-                x = 100f,
-                y = 590f,
-                vx = 0f,
-                vy = 100f,
-                w = 50f,
-                h = 50f
-            )
+            val entity =
+                entity(
+                    x = 100f,
+                    y = 590f,
+                    vx = 0f,
+                    vy = 100f,
+                    w = 50f,
+                    h = 50f,
+                )
 
             boundarySystem.update(listOf(entity), 0.016f)
 
@@ -137,11 +145,11 @@ class BoundarySystemTest {
 
     @Nested
     inner class MissingComponents {
-
         @Test
         fun `entity without Position is ignored`() {
-            val entity = Entity(1)
-                .add(Velocity(10f, 10f))
+            val entity =
+                Entity(1)
+                    .add(Velocity(10f, 10f))
 
             assertDoesNotThrow {
                 boundarySystem.update(listOf(entity), 0.016f)
@@ -150,10 +158,11 @@ class BoundarySystemTest {
 
         @Test
         fun `entity without Velocity is clamped but velocity is not modified`() {
-            val entity = entity(
-                x = -10f,
-                y = 100f
-            )
+            val entity =
+                entity(
+                    x = -10f,
+                    y = 100f,
+                )
 
             boundarySystem.update(listOf(entity), 0.016f)
 
@@ -164,12 +173,13 @@ class BoundarySystemTest {
 
         @Test
         fun `entity without BoxCollider uses zero size`() {
-            val entity = entity(
-                x = 810f,
-                y = 100f,
-                vx = 50f,
-                vy = 0f
-            )
+            val entity =
+                entity(
+                    x = 810f,
+                    y = 100f,
+                    vx = 50f,
+                    vy = 0f,
+                )
 
             boundarySystem.update(listOf(entity), 0.016f)
 

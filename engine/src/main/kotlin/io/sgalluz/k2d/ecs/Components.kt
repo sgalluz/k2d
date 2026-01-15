@@ -19,12 +19,12 @@ enum class CollisionResponse {
     STATIC,
     BOUNCE,
     PUSH,
-    EXPLODE
+    EXPLODE,
 }
 
 data class BoxCollider(
     val width: Float,
     val height: Float,
     var isColliding: Boolean = false,
-    val response: CollisionResponse = CollisionResponse.NONE
+    val response: CollisionResponse = CollisionResponse.NONE,
 ) : Component

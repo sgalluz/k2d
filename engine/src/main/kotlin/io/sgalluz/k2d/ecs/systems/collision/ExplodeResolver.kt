@@ -1,12 +1,21 @@
 package io.sgalluz.k2d.ecs.systems.collision
 
-import io.sgalluz.k2d.ecs.*
+import io.sgalluz.k2d.ecs.BoxCollider
+import io.sgalluz.k2d.ecs.CollisionResponse
+import io.sgalluz.k2d.ecs.DeletionMark
+import io.sgalluz.k2d.ecs.Entity
+import io.sgalluz.k2d.ecs.Position
+import io.sgalluz.k2d.ecs.Velocity
 import kotlin.math.abs
 
 class ExplodeResolver : CollisionResolver {
     private val explosionPower = 500f
 
-    override fun resolve(e1: Entity, e2: Entity, manifold: CollisionManifold) {
+    override fun resolve(
+        e1: Entity,
+        e2: Entity,
+        manifold: CollisionManifold,
+    ) {
         val r1 = e1.explosionResponse()
         val r2 = e2.explosionResponse()
 
@@ -19,10 +28,12 @@ class ExplodeResolver : CollisionResolver {
         }
     }
 
-    private fun Entity.explosionResponse() =
-        get<BoxCollider>()?.response == CollisionResponse.EXPLODE
+    private fun Entity.explosionResponse() = get<BoxCollider>()?.response == CollisionResponse.EXPLODE
 
-    private fun applyPush(victim: Entity, bomb: Entity) {
+    private fun applyPush(
+        victim: Entity,
+        bomb: Entity,
+    ) {
         val vVel = victim.get<Velocity>() ?: return
         val (vx, vy) = victim.center() ?: return
         val (bx, by) = bomb.center() ?: return

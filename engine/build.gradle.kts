@@ -34,22 +34,23 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     }
 
     classDirectories.setFrom(
-        files(classDirectories.files.map {
-            fileTree(it) {
-                exclude(
-                    "**/generated/**",
-                    "**/*\$Companion.class",
-                    "**/*\$Lambda$*.*",
-                    "**/*\$inlined$*.*",
-                    "**/*Preview*.*",
-
-                    // Compose-related
-                    "**/*Composable*.*",
-                    "**/*_Kt.class",
-                    "**/runtime/compose/**"
-                )
-            }
-        })
+        files(
+            classDirectories.files.map {
+                fileTree(it) {
+                    exclude(
+                        "**/generated/**",
+                        "**/*\$Companion.class",
+                        "**/*\$Lambda$*.*",
+                        "**/*\$inlined$*.*",
+                        "**/*Preview*.*",
+                        // Compose-related
+                        "**/*Composable*.*",
+                        "**/*_Kt.class",
+                        "**/runtime/compose/**",
+                    )
+                }
+            },
+        ),
     )
 }
 

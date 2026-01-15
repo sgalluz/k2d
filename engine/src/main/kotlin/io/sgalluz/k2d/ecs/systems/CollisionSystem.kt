@@ -1,13 +1,19 @@
 package io.sgalluz.k2d.ecs.systems
 
-import io.sgalluz.k2d.ecs.*
-import io.sgalluz.k2d.ecs.systems.collision.*
+import io.sgalluz.k2d.ecs.BoxCollider
+import io.sgalluz.k2d.ecs.Entity
+import io.sgalluz.k2d.ecs.Position
+import io.sgalluz.k2d.ecs.systems.collision.CollisionManifold
+import io.sgalluz.k2d.ecs.systems.collision.CollisionResponseDispatcher
 import kotlin.math.abs
 
 class CollisionSystem : GameSystem {
     private val collisionResponseDispatcher = CollisionResponseDispatcher()
 
-    override fun update(entities: List<Entity>, deltaTime: Float) {
+    override fun update(
+        entities: List<Entity>,
+        deltaTime: Float,
+    ) {
         entities.forEach { it.get<BoxCollider>()?.isColliding = false }
         val collidables = entities.filter { it.has<Position>() && it.has<BoxCollider>() }
 
@@ -26,7 +32,10 @@ class CollisionSystem : GameSystem {
         }
     }
 
-    private fun getCollisionManifold(e1: Entity, e2: Entity): CollisionManifold? {
+    private fun getCollisionManifold(
+        e1: Entity,
+        e2: Entity,
+    ): CollisionManifold? {
         val p1 = e1.get<Position>()!!
         val c1 = e1.get<BoxCollider>()!!
         val p2 = e2.get<Position>()!!
