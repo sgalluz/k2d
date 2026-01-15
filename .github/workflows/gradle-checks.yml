@@ -9,6 +9,10 @@ on:
       task:
         required: true
         type: string
+      publish:
+        required: false
+        type: boolean
+        default: false
     secrets:
       CODECOV_TOKEN:
         required: false
@@ -24,18 +28,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-gradle
-      
+
+      - name: Compute version
+        if: inputs.publish
+        shell: bash
+        run: |
+          MAJOR=$(grep '^major=' version.properties | cut -d'=' -f2)
+          MINOR=$(grep '^minor=' version.properties | cut -d'=' -f2)
+
+          VERSION=${MAJOR}.${MINOR}.${GITHUB_RUN_NUMBER}-SNAPSHOT
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Run engine:${{ inputs.task }}
         shell: bash
         run: |
           TASKS=":engine:${{ inputs.task }}"
-          
+
           if [[ "${{ inputs.task }}" == *"test"* ]]; then
             TASKS=":engine:cleanTest $TASKS"
           fi
-          
-          echo "Executing: ./gradlew $TASKS --build-cache --configuration-cache"
-          ./gradlew $TASKS --build-cache --configuration-cache
+
+          if [[ "${{ inputs.publish }}" == "true" ]]; then
+            VERSION_ARG="-PversionName=${VERSION}"
+          else
+            VERSION_ARG=""
+          fi
+
+          echo "Executing: ./gradlew $TASKS $VERSION_ARG --build-cache --configuration-cache"
+          ./gradlew $TASKS $VERSION_ARG --build-cache --configuration-cache
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Coverage
         if: contains(inputs.task, 'jacocoTestReport')

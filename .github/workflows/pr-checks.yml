@@ -25,6 +25,7 @@ jobs:
             refactor
             test
             chore
+            ci
           requireScope: false
 
   build:

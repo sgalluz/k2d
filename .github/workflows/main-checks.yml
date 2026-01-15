@@ -7,6 +7,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  packages: write
 
 jobs:
   build:
@@ -23,3 +24,11 @@ jobs:
       task: "test :engine:jacocoTestReport"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  publish:
+    needs: test
+    uses: ./.github/workflows/gradle-checks.yml
+    with:
+      job-name: "Publish Engine SNAPSHOT"
+      task: "publish"
+      publish: true
