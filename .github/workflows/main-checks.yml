@@ -39,3 +39,5 @@ jobs:
       job-name: "Publish Engine SNAPSHOT"
       task: "publish"
       publish: true
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

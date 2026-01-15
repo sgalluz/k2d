@@ -16,7 +16,8 @@ on:
     secrets:
       CODECOV_TOKEN:
         required: false
-
+      GITHUB_TOKEN:
+        required: false
 jobs:
   gradle-task:
     name: Gradle | ${{ inputs.job-name }}
@@ -55,6 +56,8 @@ jobs:
 
           echo "Executing: ./gradlew $TASKS $VERSION_ARG --build-cache --configuration-cache"
           ./gradlew $TASKS $VERSION_ARG --build-cache --configuration-cache
+        env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Coverage
         if: contains(inputs.task, 'jacocoTestReport')
