@@ -1,7 +1,7 @@
 # K2D - Kotlin 2D Engine
 
-<div style="text-align: center">
-  <pre>
+<div style="display: flex; flex-direction: column">
+  <pre style="width: 100%; text-align: center">
   ██╗  ██╗██████╗ ██████╗ 
   ██║ ██╔╝╚════██╗██╔══██╗
   █████╔╝  █████╔╝██║  ██║
@@ -9,7 +9,7 @@
   ██║  ██╗███████╗██████╔╝
   ╚═╝  ╚═╝╚══════╝╚═════╝ 
   </pre>
-  <p><b>A lightweight, high-performance 2D game engine built with Kotlin & Compose Desktop.</b></p>
+  <p style="text-align: center"><b>A lightweight, high-performance 2D game engine built with Kotlin & Compose Desktop.</b></p>
 </div>
 
 <div style="text-align: center;">
@@ -126,4 +126,4 @@ See [LICENSE](LICENSE) for more information.
 
 ---
 
-<p style="text-align: center">Built with ❤️ for the Kotlin community</p>
+<p style="text-align: center; width: 100%">Built with ❤️ for the Kotlin community</p>
