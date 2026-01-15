@@ -28,6 +28,9 @@ jobs:
   publish:
     needs: test
     uses: ./.github/workflows/gradle-checks.yml
+    permissions:
+      contents: read
+      packages: write
     with:
       job-name: "Publish Engine SNAPSHOT"
       task: "publish"
