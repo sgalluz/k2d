@@ -6,18 +6,21 @@ on:
 
 jobs:
   build:
+    name: Build Engine
     uses: ./.github/workflows/gradle-checks.yml
     with:
       job-name: "Assemble Engine"
       task: "assemble"
 
   lint:
-      uses: ./.github/workflows/gradle-checks.yml
-      with:
-          job-name: "Lint Engine"
-          task: "ktlintCheck"
+    name: Lint Engine
+    uses: ./.github/workflows/gradle-checks.yml
+    with:
+      job-name: "Lint Engine"
+      task: "ktlintCheck"
 
   test:
+    name: Test Engine
     needs: build
     uses: ./.github/workflows/gradle-checks.yml
     permissions:
@@ -30,6 +33,7 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   publish:
+    name: Publish Engine
     needs: test
     uses: ./.github/workflows/gradle-checks.yml
     permissions:
