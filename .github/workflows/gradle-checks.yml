@@ -23,7 +23,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -56,8 +55,6 @@ jobs:
 
           echo "Executing: ./gradlew $TASKS $VERSION_ARG --build-cache --configuration-cache"
           ./gradlew $TASKS $VERSION_ARG --build-cache --configuration-cache
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Coverage
         if: contains(inputs.task, 'jacocoTestReport')

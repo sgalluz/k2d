@@ -4,11 +4,6 @@ on:
   push:
     branches: [main]
 
-permissions:
-  contents: read
-  pull-requests: write
-  packages: write
-
 jobs:
   build:
     uses: ./.github/workflows/gradle-checks.yml
@@ -19,6 +14,9 @@ jobs:
   test:
     needs: build
     uses: ./.github/workflows/gradle-checks.yml
+    permissions:
+      contents: read
+      pull-requests: write
     with:
       job-name: "Test & Coverage Engine"
       task: "test :engine:jacocoTestReport"
