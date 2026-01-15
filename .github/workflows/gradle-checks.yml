@@ -16,8 +16,6 @@ on:
     secrets:
       CODECOV_TOKEN:
         required: false
-      GITHUB_TOKEN:
-        required: false
 
 jobs:
   gradle-task:
@@ -25,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -42,6 +42,9 @@ jobs:
 
       - name: Run engine:${{ inputs.task }}
         shell: bash
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TASKS=":engine:${{ inputs.task }}"
 
@@ -57,8 +60,6 @@ jobs:
 
           echo "Executing: ./gradlew $TASKS $VERSION_ARG --build-cache --configuration-cache"
           ./gradlew $TASKS $VERSION_ARG --build-cache --configuration-cache
-        env:
-           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Coverage
         if: contains(inputs.task, 'jacocoTestReport')
