@@ -11,6 +11,12 @@ jobs:
       job-name: "Assemble Engine"
       task: "assemble"
 
+  lint:
+      uses: ./.github/workflows/gradle-checks.yml
+      with:
+          job-name: "Lint Engine"
+          task: "ktlintCheck"
+
   test:
     needs: build
     uses: ./.github/workflows/gradle-checks.yml

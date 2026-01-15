@@ -25,11 +25,16 @@ jobs:
           requireScope: false
 
   build:
-    needs: semantic-pr
     uses: ./.github/workflows/gradle-checks.yml
     with:
       job-name: "Assemble Engine"
       task: "assemble"
+
+  lint:
+      uses: ./.github/workflows/gradle-checks.yml
+      with:
+          job-name: "Lint Engine"
+          task: "ktlintCheck"
 
   test:
     needs: build
