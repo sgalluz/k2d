@@ -18,7 +18,7 @@ val major = versionProps?.get("major") ?: "0"
 val minor = versionProps?.get("minor") ?: "0"
 
 allprojects {
-    group = "io.github.sgalluz.k2d"
+    group = "io.sgalluz.k2d"
     version = findProperty("versionName") as String?
         ?: "$major.$minor.0-SNAPSHOT"
 
