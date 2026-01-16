@@ -24,6 +24,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: ./.github/actions/setup-gradle
 
       - name: Compute version
@@ -32,9 +35,11 @@ jobs:
         run: |
           MAJOR=$(grep '^major=' version.properties | cut -d'=' -f2)
           MINOR=$(grep '^minor=' version.properties | cut -d'=' -f2)
+          PATCH=$(git rev-list --count HEAD -- engine/)
 
-          VERSION=${MAJOR}.${MINOR}.${GITHUB_RUN_NUMBER}-SNAPSHOT
+          VERSION="${MAJOR}.${MINOR}.${PATCH}-SNAPSHOT"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Computed Version: $VERSION"
 
       - name: Run engine:${{ inputs.task }}
         shell: bash
@@ -42,20 +47,7 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TASKS=":engine:${{ inputs.task }}"
-
-          if [[ "${{ inputs.task }}" == *"test"* ]]; then
-            TASKS=":engine:cleanTest $TASKS"
-          fi
-
-          if [[ "${{ inputs.publish }}" == "true" ]]; then
-            VERSION_ARG="-PversionName=${VERSION}"
-          else
-            VERSION_ARG=""
-          fi
-
-          echo "Executing: ./gradlew $TASKS $VERSION_ARG --build-cache --configuration-cache"
-          ./gradlew $TASKS $VERSION_ARG --build-cache --configuration-cache
+          ./.github/scripts/run-gradle.sh "${{ inputs.task }}" "${{ inputs.publish }}" "${{ env.VERSION }}"
 
       - name: Upload Coverage
         if: contains(inputs.task, 'jacocoTestReport')
