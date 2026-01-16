@@ -3,6 +3,12 @@ name: PR Checks
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths-ignore:
+      - '**.md'
+      - '.github/dependabot.yml'
+      - '.github/workflows/dependabot-auto-merge.yml'
+      - '.gitignore'
+      - 'LICENSE'
 
 jobs:
   build:
@@ -25,6 +31,6 @@ jobs:
       pull-requests: write
     with:
       job-name: "Test & Coverage Engine"
-      task: "test :engine:jacocoTestReport"
+      task: "test jacocoTestReport"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
