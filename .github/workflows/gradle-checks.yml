@@ -51,7 +51,7 @@ jobs:
 
       - name: Upload Coverage
         if: contains(inputs.task, 'jacocoTestReport')
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: engine/build/reports/jacoco/test/jacocoTestReport.xml
           flags: engine
