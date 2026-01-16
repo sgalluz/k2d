@@ -84,7 +84,7 @@ publishing {
             from(components["java"])
 
             groupId = project.group.toString()
-            artifactId = "k2d-engine"
+            artifactId = "engine"
             version = project.version.toString()
         }
     }
