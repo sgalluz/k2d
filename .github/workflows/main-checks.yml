@@ -3,6 +3,12 @@ name: Main Checks
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.github/dependabot.yml'
+      - '.github/workflows/dependabot-auto-merge.yml'
+      - '.gitignore'
+      - 'LICENSE'
 
 jobs:
   build:
@@ -25,12 +31,17 @@ jobs:
       pull-requests: write
     with:
       job-name: "Test & Coverage Engine"
-      task: "test :engine:jacocoTestReport"
+      task: "test jacocoTestReport"
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   publish:
     needs: test
+    if: |
+      github.event_name == 'push' && 
+      (contains(github.event.head_commit.modified, 'engine/') || 
+       contains(github.event.head_commit.modified, 'version.properties') ||
+       contains(github.event.head_commit.modified, 'build.gradle.kts'))
     uses: ./.github/workflows/gradle-checks.yml
     permissions:
       contents: read
