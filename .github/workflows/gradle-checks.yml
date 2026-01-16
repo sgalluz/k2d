@@ -21,8 +21,6 @@ jobs:
   gradle-task:
     name: Gradle | ${{ inputs.job-name }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +38,9 @@ jobs:
 
       - name: Run engine:${{ inputs.task }}
         shell: bash
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TASKS=":engine:${{ inputs.task }}"
 
