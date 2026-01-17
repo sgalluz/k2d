@@ -9,8 +9,19 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    groups:
-      dependencies:
-        patterns:
-          - "*"
     open-pull-requests-limit: 10
+    groups:
+      kotlin-stack:
+        patterns:
+          - "org.jetbrains.kotlin:*"
+          - "org.jetbrains.kotlinx:*"
+          - "org.jetbrains.compose:*"
+
+      testing:
+        patterns:
+          - "org.junit.jupiter:*"
+          - "io.mockk:*"
+
+      tooling:
+        patterns:
+          - "org.jlleitschuh.gradle.ktlint"
