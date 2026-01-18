@@ -1,7 +1,3 @@
-@file:OptIn(ExperimentalComposeLibrary::class)
-
-import org.jetbrains.compose.ExperimentalComposeLibrary
-
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.compose)
@@ -15,10 +11,14 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(kotlin("test"))
+
+    // Required by Compose UI tests
+    testImplementation(libs.junit4)
+    testImplementation(compose.desktop.uiTestJUnit4)
+
+    // JUnit 5
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.mockk)
-    testImplementation("junit:junit:4.13.2")
-    testImplementation(compose.desktop.uiTestJUnit4)
 }
 
 tasks.withType<Test>().configureEach {
