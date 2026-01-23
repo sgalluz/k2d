@@ -48,5 +48,5 @@ jobs:
       packages: write
     with:
       job-name: "Publish Engine SNAPSHOT"
-      task: "publish"
+      task: "publishEnginePublicationToGitHubPackagesRepository"
       publish: true
