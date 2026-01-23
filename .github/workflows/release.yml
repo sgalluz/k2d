@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Run release without publishing (dry run)"
+        required: false
+        default: "false"
+jobs:
+  release:
+    name: Release to Maven Central
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-gradle
+
+      - name: Read release version
+        id: version
+        run: |
+          MAJOR=$(grep '^major=' version.properties | cut -d'=' -f2)
+          MINOR=$(grep '^minor=' version.properties | cut -d'=' -f2)
+          PATCH=$(grep '^patch=' version.properties | cut -d'=' -f2)
+          VERSION="$MAJOR.$MINOR.$PATCH"
+
+          if [[ "$VERSION" == *"-SNAPSHOT"* ]]; then
+            echo "ERROR: SNAPSHOT version cannot be released"
+            exit 1
+          fi
+
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Ensure on main
+        run: test "$(git branch --show-current)" = "main"
+
+      - name: Ensure clean working tree
+        run: git diff --exit-code
+
+      - name: Ensure tag does not exist
+        run: |
+          git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1 && exit 1 || true
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Create git tag
+        run: |
+          git tag -a v${{ steps.version.outputs.version }} \
+          -m "Release v${{ steps.version.outputs.version }}"
+          git push origin v${{ steps.version.outputs.version }}
+
+      - name: Dry run publish (Sonatype)
+        if: inputs.dry-run == 'true'
+        run: |
+          ./gradlew publishEnginePublicationToSonatypeRepository --dry-run
+
+      - name: Publish RELEASE to Sonatype
+        if: inputs.dry-run != 'true'
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          ./.github/scripts/run-gradle.sh \
+          "publishEnginePublicationToSonatypeRepository" \
+          "${{ env.VERSION }}"
+
+      - name: Create GitHub Release
+        if: inputs.dry-run != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: v${{ env.VERSION }}
+          generate_release_notes: true
