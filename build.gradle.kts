@@ -2,7 +2,7 @@ import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 plugins {
     kotlin("jvm") version "2.3.0" apply false
-    id("org.jetbrains.compose") version "1.6.11" apply false
+    id("org.jetbrains.compose") version "1.10.0" apply false
     id("org.jetbrains.kotlin.plugin.compose") version "2.3.0" apply false
     id("org.jlleitschuh.gradle.ktlint") version "14.0.1" apply false
 }
