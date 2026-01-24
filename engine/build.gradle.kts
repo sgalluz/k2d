@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     jacoco
     `maven-publish`
+    signing
 }
 
 dependencies {
@@ -14,7 +15,7 @@ dependencies {
 
     // Required by Compose UI tests
     testImplementation(libs.junit4)
-    testImplementation(compose.desktop.uiTestJUnit4)
+    testImplementation(libs.compose.ui.test.junit4)
 
     // JUnit 5
     testImplementation(libs.junit.jupiter)
@@ -83,7 +84,6 @@ publishing {
     publications {
         create<MavenPublication>("engine") {
             from(components["java"])
-
             groupId = project.group.toString()
             artifactId = "engine"
             version = project.version.toString()
@@ -92,20 +92,15 @@ publishing {
 
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/sgalluz/k2d")
-
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
-
-        maven {
             name = "Sonatype"
-            // FIXME evaluate if snapshots must be published in Sonatype
-            //  Snapshot URL: https://oss.sonatype.org/content/repositories/snapshots/
-            url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            url =
+                uri(
+                    if (version.toString().endsWith("SNAPSHOT")) {
+                        "https://oss.sonatype.org/content/repositories/snapshots/"
+                    } else {
+                        "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                    },
+                )
 
             credentials {
                 username = System.getenv("OSSRH_USERNAME")
@@ -113,4 +108,13 @@ publishing {
             }
         }
     }
+}
+
+signing {
+    isRequired = !version.toString().endsWith("SNAPSHOT")
+    useInMemoryPgpKeys(
+        System.getenv("SIGNING_KEY"),
+        System.getenv("SIGNING_PASSWORD"),
+    )
+    sign(publishing.publications["engine"])
 }

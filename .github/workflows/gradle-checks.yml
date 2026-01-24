@@ -29,25 +29,26 @@ jobs:
 
       - uses: ./.github/actions/setup-gradle
 
-      - name: Compute version
+      - name: Compute SNAPSHOT version
         if: inputs.publish
         shell: bash
         run: |
-          MAJOR=$(grep '^major=' version.properties | cut -d'=' -f2)
-          MINOR=$(grep '^minor=' version.properties | cut -d'=' -f2)
-          PATCH=$(git rev-list --count HEAD -- engine/)
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          BASE_VERSION="${LAST_TAG#v}"
 
-          VERSION="${MAJOR}.${MINOR}.${PATCH}-SNAPSHOT"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
+          PATCH=$((PATCH + 1))
+
+          VERSION="$MAJOR.$MINOR.$PATCH-SNAPSHOT"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Computed Version: $VERSION"
+          echo "Computed SNAPSHOT version: $VERSION"
 
       - name: Run engine:${{ inputs.task }}
         shell: bash
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./.github/scripts/run-gradle.sh "${{ inputs.task }}" "${{ inputs.publish }}" "${{ env.VERSION }}"
+          ./.github/scripts/run-gradle.sh \
+          "${{ inputs.task }}" \
+          "${{ env.VERSION }}"
 
       - name: Upload Coverage
         if: contains(inputs.task, 'jacocoTestReport')

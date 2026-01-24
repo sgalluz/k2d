@@ -40,7 +40,6 @@ jobs:
     if: |
       github.event_name == 'push' && 
       (contains(github.event.head_commit.modified, 'engine/') || 
-       contains(github.event.head_commit.modified, 'version.properties') ||
        contains(github.event.head_commit.modified, 'build.gradle.kts'))
     uses: ./.github/workflows/gradle-checks.yml
     permissions:
@@ -48,5 +47,5 @@ jobs:
       packages: write
     with:
       job-name: "Publish Engine SNAPSHOT"
-      task: "publishEnginePublicationToGitHubPackagesRepository"
+      task: "publishEnginePublicationToSonatypeRepository"
       publish: true
