@@ -16,7 +16,7 @@ val snapshotVersion = versionProps.getProperty("version")
     ?: error("version.properties must define a version")
 
 allprojects {
-    group = "io.sgalluz.k2d"
+    group = "dev.sgalluz.k2d"
     version = System.getenv("VERSION") ?: snapshotVersion
 
     repositories {
