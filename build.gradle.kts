@@ -1,4 +1,5 @@
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
@@ -7,9 +8,16 @@ plugins {
     alias(libs.plugins.ktlint) apply false
 }
 
+val versionProps = Properties().apply {
+    load(rootProject.file("version.properties").inputStream())
+}
+
+val snapshotVersion = versionProps.getProperty("version")
+    ?: error("version.properties must define a version")
+
 allprojects {
     group = "io.sgalluz.k2d"
-    version = System.getenv("VERSION") ?: "0.0.0-SNAPSHOT"
+    version = System.getenv("VERSION") ?: snapshotVersion
 
     repositories {
         google()

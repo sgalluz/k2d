@@ -1,0 +1,11 @@
+{
+    "release-type": "simple",
+    "packages": {
+        "engine": {
+            "package-name": "engine",
+            "version-file": "version.properties",
+            "version-property": "version",
+            "changelog-path": "CHANGELOG.md"
+        }
+    }
+}
