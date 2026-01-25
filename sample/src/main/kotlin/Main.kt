@@ -7,19 +7,19 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import io.sgalluz.k2d.ecs.BoxCollider
-import io.sgalluz.k2d.ecs.CollisionResponse
-import io.sgalluz.k2d.ecs.PlayerInput
-import io.sgalluz.k2d.ecs.Position
-import io.sgalluz.k2d.ecs.Sprite
-import io.sgalluz.k2d.ecs.Velocity
-import io.sgalluz.k2d.ecs.World
-import io.sgalluz.k2d.ecs.systems.BoundarySystem
-import io.sgalluz.k2d.ecs.systems.CollisionSystem
-import io.sgalluz.k2d.ecs.systems.MovementSystem
-import io.sgalluz.k2d.input.InputSystem
-import io.sgalluz.k2d.rendering.k2dCanvas
-import io.sgalluz.k2d.rendering.systems.ShapeRenderSystem
+import dev.sgalluz.k2d.ecs.BoxCollider
+import dev.sgalluz.k2d.ecs.CollisionResponse
+import dev.sgalluz.k2d.ecs.PlayerInput
+import dev.sgalluz.k2d.ecs.Position
+import dev.sgalluz.k2d.ecs.Sprite
+import dev.sgalluz.k2d.ecs.Velocity
+import dev.sgalluz.k2d.ecs.World
+import dev.sgalluz.k2d.ecs.systems.BoundarySystem
+import dev.sgalluz.k2d.ecs.systems.CollisionSystem
+import dev.sgalluz.k2d.ecs.systems.MovementSystem
+import dev.sgalluz.k2d.input.InputSystem
+import dev.sgalluz.k2d.rendering.k2dCanvas
+import dev.sgalluz.k2d.rendering.systems.ShapeRenderSystem
 
 fun main() =
     application {

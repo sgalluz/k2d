@@ -1,24 +1,25 @@
-@file:OptIn(ExperimentalComposeLibrary::class)
-
-import org.jetbrains.compose.ExperimentalComposeLibrary
-
 plugins {
-    kotlin("jvm")
-    id("org.jetbrains.compose")
-    id("org.jetbrains.kotlin.plugin.compose")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.compose)
+    alias(libs.plugins.kotlin.compose)
     jacoco
     `maven-publish`
+    signing
 }
 
 dependencies {
     implementation(compose.desktop.currentOs)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation(libs.kotlinx.coroutines.core)
 
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.2")
-    testImplementation("io.mockk:mockk:1.14.7")
-    testImplementation("junit:junit:4.13.2")
-    testImplementation(compose.desktop.uiTestJUnit4)
+
+    // Required by Compose UI tests
+    testImplementation(libs.junit4)
+    testImplementation(libs.compose.ui.test.junit4)
+
+    // JUnit 5
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.mockk)
 }
 
 tasks.withType<Test>().configureEach {
@@ -83,7 +84,6 @@ publishing {
     publications {
         create<MavenPublication>("engine") {
             from(components["java"])
-
             groupId = project.group.toString()
             artifactId = "engine"
             version = project.version.toString()
@@ -92,13 +92,29 @@ publishing {
 
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/sgalluz/k2d")
+            name = "Sonatype"
+            url =
+                uri(
+                    if (version.toString().endsWith("SNAPSHOT")) {
+                        "https://oss.sonatype.org/content/repositories/snapshots/"
+                    } else {
+                        "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                    },
+                )
 
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = System.getenv("OSSRH_USERNAME")
+                password = System.getenv("OSSRH_PASSWORD")
             }
         }
     }
+}
+
+signing {
+    isRequired = !version.toString().endsWith("SNAPSHOT")
+    useInMemoryPgpKeys(
+        System.getenv("SIGNING_KEY"),
+        System.getenv("SIGNING_PASSWORD"),
+    )
+    sign(publishing.publications["engine"])
 }

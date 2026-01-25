@@ -1,27 +1,23 @@
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
+import java.util.Properties
 
 plugins {
-    kotlin("jvm") version "2.3.0" apply false
-    id("org.jetbrains.compose") version "1.10.0" apply false
-    id("org.jetbrains.kotlin.plugin.compose") version "2.3.0" apply false
-    id("org.jlleitschuh.gradle.ktlint") version "14.0.1" apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.compose) apply false
+    alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.ktlint) apply false
 }
 
-val versionProps = rootProject.file("version.properties")
-    .takeIf { it.exists() }
-    ?.readLines()
-    ?.associate {
-        val (k, v) = it.split("=")
-        k to v
-    }
+val versionProps = Properties().apply {
+    load(rootProject.file("version.properties").inputStream())
+}
 
-val major = versionProps?.get("major") ?: "0"
-val minor = versionProps?.get("minor") ?: "0"
+val snapshotVersion = versionProps.getProperty("version")
+    ?: error("version.properties must define a version")
 
 allprojects {
-    group = "io.sgalluz.k2d"
-    version = findProperty("versionName") as String?
-        ?: "$major.$minor.0-SNAPSHOT"
+    group = "dev.sgalluz.k2d"
+    version = System.getenv("VERSION") ?: snapshotVersion
 
     repositories {
         google()

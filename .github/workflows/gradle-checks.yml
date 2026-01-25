@@ -9,10 +9,6 @@ on:
       task:
         required: true
         type: string
-      publish:
-        required: false
-        type: boolean
-        default: false
     secrets:
       CODECOV_TOKEN:
         required: false
@@ -26,28 +22,14 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
       - uses: ./.github/actions/setup-gradle
-
-      - name: Compute version
-        if: inputs.publish
-        shell: bash
-        run: |
-          MAJOR=$(grep '^major=' version.properties | cut -d'=' -f2)
-          MINOR=$(grep '^minor=' version.properties | cut -d'=' -f2)
-          PATCH=$(git rev-list --count HEAD -- engine/)
-
-          VERSION="${MAJOR}.${MINOR}.${PATCH}-SNAPSHOT"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Computed Version: $VERSION"
 
       - name: Run engine:${{ inputs.task }}
         shell: bash
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./.github/scripts/run-gradle.sh "${{ inputs.task }}" "${{ inputs.publish }}" "${{ env.VERSION }}"
+        run: ./.github/scripts/run-gradle.sh "${{ inputs.task }}"
 
       - name: Upload Coverage
         if: contains(inputs.task, 'jacocoTestReport')
