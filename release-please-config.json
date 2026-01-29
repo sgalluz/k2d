@@ -1,20 +1,11 @@
 {
     "packages": {
         "engine": {
-            "release-type": "java",
-            "bump-minor-pre-major": true,
-            "include-v-in-tag": true,
+            "release-type": "java-gradle",
             "package-name": "engine",
-            "version-file": "version.properties",
+            "include-v-in-tag": true,
+            "bump-minor-pre-major": true,
             "changelog-path": "CHANGELOG.md"
         }
-    },
-    "plugins": [
-        {
-            "type": "maven-next-snapshot",
-            "config": {
-                "versionFile": "version.properties"
-            }
-        }
-    ]
+    }
 }
