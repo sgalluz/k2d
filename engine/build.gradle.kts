@@ -14,7 +14,6 @@ plugins {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation(libs.kotlinx.coroutines.core)
-
     testImplementation(kotlin("test"))
 
     // Required by Compose UI tests
