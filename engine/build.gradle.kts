@@ -1,7 +1,11 @@
+import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.dokka)
+
     jacoco
     `maven-publish`
     signing
@@ -80,13 +84,59 @@ tasks.check {
     dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
+java {
+    withSourcesJar()
+}
+
+val dokkaHtmlJar by tasks.registering(Jar::class) {
+    description = "Generates Javadoc JAR from Dokka HTML output"
+    archiveClassifier.set("javadoc")
+
+    val dokkaTask =
+        tasks.named<DokkaGeneratePublicationTask>(
+            "dokkaGeneratePublicationHtml",
+        )
+
+    dependsOn(dokkaTask)
+    from(dokkaTask.flatMap { it.outputDirectory })
+}
+
 publishing {
     publications {
         create<MavenPublication>("engine") {
             from(components["java"])
+            artifact(dokkaHtmlJar)
+
             groupId = project.group.toString()
             artifactId = "engine"
             version = project.version.toString()
+
+            pom {
+                name.set("K2D Engine")
+                description.set("Experimental 2D game engine exploring Compose Multiplatform for lightweight indie game development.")
+                url.set("https://github.com/sgalluz/k2d")
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("k2d")
+                        name.set("K2D Team")
+                        email.set("k2d@sgalluz.dev")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/sgalluz/k2d.git")
+                    developerConnection.set("scm:git:ssh://github.com/sgalluz/k2d.git")
+                    url.set("https://github.com/sgalluz/k2d")
+                }
+            }
         }
     }
 
@@ -96,9 +146,9 @@ publishing {
             url =
                 uri(
                     if (version.toString().endsWith("SNAPSHOT")) {
-                        "https://oss.sonatype.org/content/repositories/snapshots/"
+                        "https://s01.oss.sonatype.org/content/repositories/snapshots/"
                     } else {
-                        "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                        "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
                     },
                 )
 
