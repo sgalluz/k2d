@@ -6,7 +6,7 @@ junit4 = "4.13.2"
 junit-jupiter = "6.0.2"
 mockk = "1.14.9"
 ktlint = "14.0.1"
-dokka = "2.0.0"
+dokka = "2.1.0"
 
 [libraries]
 compose-ui-test-junit4 = { module = "org.jetbrains.compose.ui:ui-test-junit4", version.ref = "compose" }
