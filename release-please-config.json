@@ -1,0 +1,20 @@
+{
+    "packages": {
+        "engine": {
+            "release-type": "java",
+            "bump-minor-pre-major": true,
+            "include-v-in-tag": true,
+            "package-name": "engine",
+            "version-file": "version.properties",
+            "changelog-path": "CHANGELOG.md"
+        }
+    },
+    "plugins": [
+        {
+            "type": "maven-next-snapshot",
+            "config": {
+                "versionFile": "version.properties"
+            }
+        }
+    ]
+}
