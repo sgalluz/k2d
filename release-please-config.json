@@ -1,7 +1,7 @@
 {
     "packages": {
         "engine": {
-            "release-type": "java-gradle",
+            "release-type": "java",
             "package-name": "engine",
             "include-v-in-tag": true,
             "bump-minor-pre-major": true,
