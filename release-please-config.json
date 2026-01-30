@@ -3,9 +3,12 @@
         "engine": {
             "release-type": "java",
             "package-name": "engine",
-            "include-v-in-tag": true,
             "bump-minor-pre-major": true,
-            "changelog-path": "CHANGELOG.md"
+            "changelog-path": "CHANGELOG.md",
+            "include-component-in-tag": false,
+            "snapshot-label": "SNAPSHOT"
         }
-    }
+    },
+    "include-v-in-tag": true,
+    "bootstrap-sha": "d87e6fe16eaabd4a65b718d328a1489256893368"
 }
