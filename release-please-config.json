@@ -5,7 +5,8 @@
             "package-name": "engine",
             "bump-minor-pre-major": true,
             "changelog-path": "CHANGELOG.md",
-            "include-component-in-tag": false
+            "include-component-in-tag": false,
+            "snapshot-label": "SNAPSHOT"
         }
     },
     "include-v-in-tag": true,
