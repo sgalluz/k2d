@@ -6,32 +6,39 @@ import dev.sgalluz.k2d.ecs.PlayerInput
 import dev.sgalluz.k2d.ecs.Velocity
 import dev.sgalluz.k2d.ecs.systems.GameSystem
 
-class InputSystem(private val pressedKeys: List<Key>) : GameSystem {
-    private val speed = 200f
-
+class InputSystem(
+    private val pressedKeys: List<Key>,
+    private val speed: Float = 200f,
+) : GameSystem {
     override fun update(
         entities: List<Entity>,
         deltaTime: Float,
     ) {
         entities.forEach { entity ->
             val vel = entity.get<Velocity>() ?: return@forEach
-            if (entity.get<PlayerInput>() == null) return@forEach
+            entity.get<PlayerInput>() ?: return@forEach
 
-            var deltaX = 0f
-            var deltaY = 0f
+            val right = pressedKeys.contains(Key.DirectionRight)
+            val left = pressedKeys.contains(Key.DirectionLeft)
 
-            if (pressedKeys.contains(Key.DirectionRight)) deltaX += 1f
-            if (pressedKeys.contains(Key.DirectionLeft)) deltaX -= 1f
-            if (pressedKeys.contains(Key.DirectionDown)) deltaY += 1f
-            if (pressedKeys.contains(Key.DirectionUp)) deltaY -= 1f
+            if (right && left) {
+                vel.x = 0f
+            } else if (right) {
+                vel.x = speed
+            } else if (left) {
+                vel.x = -speed
+            }
 
-            vel.x = deltaX * speed
-            vel.y = deltaY * speed
+            val up = pressedKeys.contains(Key.DirectionUp)
+            val down = pressedKeys.contains(Key.DirectionDown)
 
-            /* FIXME: If we want smooth acceleration, we would use deltaTime here
-             *  but we should also define the concept of acceleration:
-             *  vel.x += deltaX * acceleration * deltaTime
-             */
+            if (up && down) {
+                vel.y = 0f
+            } else if (up) {
+                vel.y = -speed
+            } else if (down) {
+                vel.y = speed
+            }
         }
     }
 }

@@ -2,13 +2,16 @@ package dev.sgalluz.k2d.input
 
 import androidx.compose.ui.input.key.Key
 import dev.sgalluz.k2d.ecs.PlayerInput
+import dev.sgalluz.k2d.ecs.Position
 import dev.sgalluz.k2d.ecs.Velocity
 import dev.sgalluz.k2d.ecs.World
+import dev.sgalluz.k2d.ecs.systems.FrictionSystem
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class InputSystemTest {
     @ParameterizedTest(name = "Direction {0} results in velocity ({1}, {2})")
@@ -67,6 +70,51 @@ class InputSystemTest {
         val inputSystem = InputSystem(listOf(Key.DirectionRight))
 
         inputSystem.update(world.getEntities(), 0.016f)
+    }
+
+    @Test
+    fun `Player should retain velocity after input is released`() {
+        val world = World()
+        val initialVel = 200f
+        val player =
+            world.createEntity()
+                .add(Velocity(initialVel, 0f))
+                .add(PlayerInput())
+
+        // Simulate a frame without pressed keys
+        val emptyInputSystem = InputSystem(pressedKeys = mutableListOf())
+        val frictionSystem = FrictionSystem(globalFriction = 0.5f)
+
+        emptyInputSystem.update(world.getEntities(), 0.016f)
+        frictionSystem.update(world.getEntities(), 0.016f)
+
+        val currentVel = player.get<Velocity>()!!.x
+        assertTrue(currentVel > 0f && currentVel < initialVel, "Velocity should decay, not snap to zero")
+    }
+
+    @Test
+    fun `InputSystem should be reactive on direction change and fluid on release`() {
+        val world = World()
+        val speed = 300f
+
+        val player =
+            world.createEntity()
+                .add(Position(0f, 0f))
+                .add(Velocity(speed, 0f))
+                .add(PlayerInput())
+
+        val inputLeft = InputSystem(mutableListOf(Key.DirectionLeft), speed)
+        inputLeft.update(world.getEntities(), 0.016f)
+        assertEquals(-speed, player.get<Velocity>()!!.x)
+
+        val inputNone = InputSystem(mutableListOf())
+        val friction = FrictionSystem(globalFriction = 5.0f)
+
+        inputNone.update(world.getEntities(), 0.016f)
+        friction.update(world.getEntities(), 0.016f)
+
+        val velAfterRelease = player.get<Velocity>()!!.x
+        assertTrue(velAfterRelease < 0f && velAfterRelease > -300f, "Deve rallentare fluidamente, non fermarsi a zero")
     }
 
     companion object {
