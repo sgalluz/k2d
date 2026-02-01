@@ -11,9 +11,10 @@ import dev.sgalluz.k2d.runtime.compose.rememberGameLoop
 fun k2dCanvas(
     onUpdate: (Float) -> Unit,
     onRender: DrawScope.() -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val gameLoop = rememberGameLoop(onUpdate)
-    Canvas(modifier = Modifier.fillMaxSize()) {
+    Canvas(modifier = modifier.fillMaxSize()) {
         gameLoop.frameTick.value
         onRender()
     }
