@@ -28,3 +28,5 @@ data class BoxCollider(
     var isColliding: Boolean = false,
     val response: CollisionResponse = CollisionResponse.NONE,
 ) : Component
+
+data class Friction(val linearDrag: Float) : Component
