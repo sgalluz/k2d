@@ -30,3 +30,5 @@ data class BoxCollider(
 ) : Component
 
 data class Friction(val linearDrag: Float) : Component
+
+class MouseFollower : Component
