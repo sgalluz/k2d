@@ -9,6 +9,7 @@ import dev.sgalluz.k2d.ecs.systems.GameSystem
 class InputSystem(
     private val pressedKeys: List<Key>,
     private val speed: Float = 200f,
+    private val config: InputConfig = InputConfig(),
 ) : GameSystem {
     override fun update(
         entities: List<Entity>,
@@ -18,19 +19,18 @@ class InputSystem(
             val vel = entity.get<Velocity>() ?: return@forEach
             entity.get<PlayerInput>() ?: return@forEach
 
-            val right = pressedKeys.contains(Key.DirectionRight)
-            val left = pressedKeys.contains(Key.DirectionLeft)
+            val up = pressedKeys.contains(config.bindings[InputAction.UP])
+            val down = pressedKeys.contains(config.bindings[InputAction.DOWN])
+            val left = pressedKeys.contains(config.bindings[InputAction.LEFT])
+            val right = pressedKeys.contains(config.bindings[InputAction.RIGHT])
 
-            if (right && left) {
+            if (left && right) {
                 vel.x = 0f
-            } else if (right) {
-                vel.x = speed
             } else if (left) {
                 vel.x = -speed
+            } else if (right) {
+                vel.x = speed
             }
-
-            val up = pressedKeys.contains(Key.DirectionUp)
-            val down = pressedKeys.contains(Key.DirectionDown)
 
             if (up && down) {
                 vel.y = 0f

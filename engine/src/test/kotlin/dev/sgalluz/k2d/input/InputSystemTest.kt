@@ -6,6 +6,7 @@ import dev.sgalluz.k2d.ecs.Position
 import dev.sgalluz.k2d.ecs.Velocity
 import dev.sgalluz.k2d.ecs.World
 import dev.sgalluz.k2d.ecs.systems.FrictionSystem
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -14,6 +15,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class InputSystemTest {
+    private lateinit var world: World
+
+    @BeforeEach
+    fun setup() {
+        world = World()
+    }
+
     @ParameterizedTest(name = "Direction {0} results in velocity ({1}, {2})")
     @MethodSource("provideDirectionalInput")
     fun `should update Velocity when directional keys are pressed`(
@@ -21,7 +29,6 @@ class InputSystemTest {
         expectedX: Float,
         expectedY: Float,
     ) {
-        val world = World()
         val player =
             world.createEntity()
                 .add(Velocity(0f, 0f))
@@ -37,7 +44,6 @@ class InputSystemTest {
 
     @Test
     fun `should handle opposite keys by canceling movement`() {
-        val world = World()
         val player =
             world.createEntity()
                 .add(Velocity(0f, 0f))
@@ -54,7 +60,6 @@ class InputSystemTest {
 
     @Test
     fun `should not crash if Velocity component is missing`() {
-        val world = World()
         world.createEntity().add(PlayerInput())
 
         val inputSystem = InputSystem(listOf(Key.DirectionRight))
@@ -74,7 +79,6 @@ class InputSystemTest {
 
     @Test
     fun `Player should retain velocity after input is released`() {
-        val world = World()
         val initialVel = 200f
         val player =
             world.createEntity()
@@ -94,7 +98,6 @@ class InputSystemTest {
 
     @Test
     fun `InputSystem should be reactive on direction change and fluid on release`() {
-        val world = World()
         val speed = 300f
 
         val player =
@@ -115,6 +118,18 @@ class InputSystemTest {
 
         val velAfterRelease = player.get<Velocity>()!!.x
         assertTrue(velAfterRelease < 0f && velAfterRelease > -300f, "Deve rallentare fluidamente, non fermarsi a zero")
+    }
+
+    @Test
+    fun `InputSystem should support custom WASD bindings`() {
+        val player = world.createEntity().add(Velocity(0f, 0f)).add(PlayerInput())
+
+        val wasdConfig = InputConfig(bindings = mapOf(InputAction.UP to Key.W))
+        val inputSystem = InputSystem(listOf(Key.W), config = wasdConfig)
+
+        inputSystem.update(world.getEntities(), 0.016f)
+
+        assertEquals(-200f, player.get<Velocity>()!!.y, "Player should move UP with W key")
     }
 
     companion object {
