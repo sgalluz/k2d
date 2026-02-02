@@ -117,7 +117,7 @@ class InputSystemTest {
         friction.update(world.getEntities(), 0.016f)
 
         val velAfterRelease = player.get<Velocity>()!!.x
-        assertTrue(velAfterRelease < 0f && velAfterRelease > -300f, "Deve rallentare fluidamente, non fermarsi a zero")
+        assertTrue(velAfterRelease < 0f && velAfterRelease > -300f, "Velocity should decay, not snap to zero")
     }
 
     @Test
