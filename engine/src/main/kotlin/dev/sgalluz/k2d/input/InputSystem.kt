@@ -7,38 +7,48 @@ import dev.sgalluz.k2d.ecs.Velocity
 import dev.sgalluz.k2d.ecs.systems.GameSystem
 
 class InputSystem(
-    private val pressedKeys: List<Key>,
+    pressedKeys: Collection<Key>,
     private val speed: Float = 200f,
     private val config: InputConfig = InputConfig(),
 ) : GameSystem {
+    private val keys = pressedKeys.toSet()
+
     override fun update(
         entities: List<Entity>,
         deltaTime: Float,
     ) {
         entities.forEach { entity ->
-            val vel = entity.get<Velocity>() ?: return@forEach
-            entity.get<PlayerInput>() ?: return@forEach
+            val velocity = entity.get<Velocity>() ?: return@forEach
+            if (entity.get<PlayerInput>() == null) return@forEach
 
-            val up = pressedKeys.contains(config.bindings[InputAction.UP])
-            val down = pressedKeys.contains(config.bindings[InputAction.DOWN])
-            val left = pressedKeys.contains(config.bindings[InputAction.LEFT])
-            val right = pressedKeys.contains(config.bindings[InputAction.RIGHT])
+            val horizontal =
+                direction(
+                    negative = isPressed(InputAction.LEFT),
+                    positive = isPressed(InputAction.RIGHT),
+                )
 
-            if (left && right) {
-                vel.x = 0f
-            } else if (left) {
-                vel.x = -speed
-            } else if (right) {
-                vel.x = speed
-            }
+            val vertical =
+                direction(
+                    negative = isPressed(InputAction.UP),
+                    positive = isPressed(InputAction.DOWN),
+                )
 
-            if (up && down) {
-                vel.y = 0f
-            } else if (up) {
-                vel.y = -speed
-            } else if (down) {
-                vel.y = speed
-            }
+            if (horizontal != 0f) velocity.x = horizontal * speed
+
+            if (vertical != 0f) velocity.y = vertical * speed
         }
     }
+
+    private fun isPressed(action: InputAction): Boolean = keys.contains(config.bindings[action])
+
+    private fun direction(
+        negative: Boolean,
+        positive: Boolean,
+    ): Float =
+        when {
+            negative && positive -> 0f
+            negative -> -1f
+            positive -> 1f
+            else -> 0f
+        }
 }
