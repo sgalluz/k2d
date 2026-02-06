@@ -3,6 +3,7 @@ package dev.sgalluz.k2d.input
 import dev.sgalluz.k2d.ecs.MouseFollower
 import dev.sgalluz.k2d.ecs.Position
 import dev.sgalluz.k2d.ecs.World
+import dev.sgalluz.k2d.input.systems.MouseSystem
 import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 import kotlin.test.assertEquals

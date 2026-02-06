@@ -1,9 +1,10 @@
-package dev.sgalluz.k2d.input
+package dev.sgalluz.k2d.input.systems
 
 import dev.sgalluz.k2d.ecs.Entity
 import dev.sgalluz.k2d.ecs.MouseFollower
 import dev.sgalluz.k2d.ecs.Position
 import dev.sgalluz.k2d.ecs.systems.GameSystem
+import dev.sgalluz.k2d.input.MouseState
 
 class MouseSystem(private val mouseState: MouseState) : GameSystem {
     override fun update(

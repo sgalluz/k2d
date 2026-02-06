@@ -25,34 +25,34 @@ import dev.sgalluz.k2d.ecs.systems.BoundarySystem
 import dev.sgalluz.k2d.ecs.systems.CollisionSystem
 import dev.sgalluz.k2d.ecs.systems.FrictionSystem
 import dev.sgalluz.k2d.ecs.systems.MovementSystem
-import dev.sgalluz.k2d.input.InputSystem
 import dev.sgalluz.k2d.input.MouseState
-import dev.sgalluz.k2d.input.MouseSystem
+import dev.sgalluz.k2d.input.systems.InputSystem
+import dev.sgalluz.k2d.input.systems.MouseSystem
 import dev.sgalluz.k2d.rendering.k2dCanvas
 import dev.sgalluz.k2d.rendering.systems.ShapeRenderSystem
+import dev.sgalluz.k2d.runtime.k2dProvideGameLoop
 
 fun main() =
     application {
-        // 1. SHARED INPUT STATE
+        // --- 1. SHARED INPUT STATE ---
         val pressedKeys = remember { mutableStateListOf<Key>() }
         val mouseState = remember { MouseState() }
 
-        // 2. EXTERNAL SYSTEMS INITIALIZATION
+        // --- 2. EXTERNAL SYSTEMS ---
         val inputSystem = remember { InputSystem(pressedKeys) }
         val mouseSystem = remember { MouseSystem(mouseState) }
         val renderer = remember { ShapeRenderSystem() }
 
-        // 3. THE ECS WORLD SETUP
+        // --- 3. WORLD SETUP ---
         val world =
             remember {
                 World().apply {
-                    // Core Logic Systems
                     addSystem(MovementSystem())
-                    addSystem(FrictionSystem(globalFriction = 10.0f))
+                    addSystem(FrictionSystem(globalFriction = 10f))
                     addSystem(CollisionSystem())
                     addSystem(BoundarySystem(width = 800f, height = 600f))
 
-                    // Player Entity (Cyan)
+                    // Player
                     createEntity()
                         .add(Position(400f, 300f))
                         .add(Velocity(0f, 0f))
@@ -60,13 +60,13 @@ fun main() =
                         .add(BoxCollider(width = 50f, height = 50f, response = CollisionResponse.BOUNCE))
                         .add(PlayerInput())
 
-                    // Crosshair Entity (White - Follows Mouse)
+                    // Crosshair
                     createEntity()
                         .add(Position(0f, 0f))
                         .add(Sprite(Color.White, 10f))
                         .add(MouseFollower())
 
-                    // Autonomous NPC (Magenta)
+                    // NPC
                     createEntity()
                         .add(Position(100f, 100f))
                         .add(Velocity(150f, 100f))
@@ -74,13 +74,13 @@ fun main() =
                         .add(BoxCollider(width = 30f, height = 30f, response = CollisionResponse.BOUNCE))
                         .add(Friction(linearDrag = 0f))
 
-                    // Static Obstacle (Dark Gray)
+                    // Static obstacle
                     createEntity()
                         .add(Position(500f, 100f))
                         .add(Sprite(Color.DarkGray, 100f))
                         .add(BoxCollider(width = 100f, height = 100f, response = CollisionResponse.STATIC))
 
-                    // Pushable Box (Yellow)
+                    // Pushable box
                     createEntity()
                         .add(Position(200f, 400f))
                         .add(Velocity(0f, 0f))
@@ -88,7 +88,7 @@ fun main() =
                         .add(BoxCollider(width = 40f, height = 40f, response = CollisionResponse.PUSH))
                         .add(Friction(linearDrag = 0f))
 
-                    // Explosive Mines (Red)
+                    // Mines
                     val mineCoords = listOf(300f to 200f, 250f to 410f, 600f to 450f, 615f to 450f)
                     mineCoords.forEach { (x, y) ->
                         createEntity()
@@ -99,6 +99,7 @@ fun main() =
                 }
             }
 
+        // --- 4. WINDOW & GAME LOOP ---
         Window(
             onCloseRequest = ::exitApplication,
             title = "K2D Engine - Mouse & Configurable Input",
@@ -110,33 +111,34 @@ fun main() =
                 true
             },
         ) {
-            k2dCanvas(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    val event = awaitPointerEvent()
-                                    val position = event.changes.first().position
-
-                                    // Update MouseState with latest hardware events
-                                    mouseState.x = position.x
-                                    mouseState.y = position.y
-                                    mouseState.isLeftPressed = event.buttons.isPrimaryPressed
-                                    mouseState.isRightPressed = event.buttons.isSecondaryPressed
-                                }
-                            }
-                        },
+            k2dProvideGameLoop(
                 onUpdate = { deltaTime ->
-                    // Process Input Systems
+                    // Update ECS
                     inputSystem.update(world.getEntities(), deltaTime)
                     mouseSystem.update(world.getEntities(), deltaTime)
-
-                    // Process Physics and World Simulation
                     world.update(deltaTime)
                 },
-                onRender = { renderer.render(world.getEntities(), this) },
-            )
+            ) {
+                k2dCanvas(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        val event = awaitPointerEvent()
+                                        val position = event.changes.first().position
+                                        mouseState.x = position.x
+                                        mouseState.y = position.y
+                                        mouseState.isLeftPressed = event.buttons.isPrimaryPressed
+                                        mouseState.isRightPressed = event.buttons.isSecondaryPressed
+                                    }
+                                }
+                            },
+                    onRender = {
+                        renderer.render(world.getEntities(), this)
+                    },
+                )
+            }
         }
     }

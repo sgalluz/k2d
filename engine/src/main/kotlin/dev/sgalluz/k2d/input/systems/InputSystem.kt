@@ -1,18 +1,18 @@
-package dev.sgalluz.k2d.input
+package dev.sgalluz.k2d.input.systems
 
 import androidx.compose.ui.input.key.Key
 import dev.sgalluz.k2d.ecs.Entity
 import dev.sgalluz.k2d.ecs.PlayerInput
 import dev.sgalluz.k2d.ecs.Velocity
 import dev.sgalluz.k2d.ecs.systems.GameSystem
+import dev.sgalluz.k2d.input.InputAction
+import dev.sgalluz.k2d.input.InputConfig
 
 class InputSystem(
-    pressedKeys: Collection<Key>,
+    private val pressedKeys: Collection<Key>,
     private val speed: Float = 200f,
     private val config: InputConfig = InputConfig(),
 ) : GameSystem {
-    private val keys = pressedKeys.toSet()
-
     override fun update(
         entities: List<Entity>,
         deltaTime: Float,
@@ -34,12 +34,11 @@ class InputSystem(
                 )
 
             if (horizontal != 0f) velocity.x = horizontal * speed
-
             if (vertical != 0f) velocity.y = vertical * speed
         }
     }
 
-    private fun isPressed(action: InputAction): Boolean = keys.contains(config.bindings[action])
+    private fun isPressed(action: InputAction): Boolean = pressedKeys.contains(config.bindings[action])
 
     private fun direction(
         negative: Boolean,

@@ -6,6 +6,7 @@ import dev.sgalluz.k2d.ecs.Position
 import dev.sgalluz.k2d.ecs.Velocity
 import dev.sgalluz.k2d.ecs.World
 import dev.sgalluz.k2d.ecs.systems.FrictionSystem
+import dev.sgalluz.k2d.input.systems.InputSystem
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
