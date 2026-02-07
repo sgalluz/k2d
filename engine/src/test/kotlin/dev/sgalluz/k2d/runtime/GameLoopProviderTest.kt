@@ -75,4 +75,23 @@ class GameLoopProviderTest {
                 assertTrue(executed)
             }
         }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun `default gameLoopProvider provides a GameLoopClock`() =
+        runComposeUiTest {
+            var resolved: GameLoopClock? = null
+
+            setContent {
+                k2dProvideGameLoop(
+                    onUpdate = {},
+                ) {
+                    resolved = LocalGameLoopClock.current
+                }
+            }
+
+            runOnIdle {
+                assertTrue(resolved != null)
+            }
+        }
 }

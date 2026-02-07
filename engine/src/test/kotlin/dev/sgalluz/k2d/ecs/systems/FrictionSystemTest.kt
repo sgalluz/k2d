@@ -5,15 +5,30 @@ import dev.sgalluz.k2d.ecs.Position
 import dev.sgalluz.k2d.ecs.Velocity
 import dev.sgalluz.k2d.ecs.World
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.assertNull
 import kotlin.test.Test
 
 class FrictionSystemTest {
-    @Test
-    fun `FrictionSystem should reduce velocity over time`() {
-        val world = World()
-        val frictionSystem = FrictionSystem(globalFriction = 0.1f)
-        world.addSystem(frictionSystem)
+    private lateinit var frictionSystem: FrictionSystem
+    private lateinit var world: World
 
+    @BeforeEach
+    fun setup() {
+        frictionSystem = FrictionSystem(globalFriction = 0.1f)
+        world = World()
+        world.addSystem(frictionSystem)
+    }
+
+    @Test
+    fun `should not apply any frictions if the entity has no velocity`() {
+        val entity = world.createEntity()
+        world.update(1f)
+        assertNull(entity.get<Velocity>())
+    }
+
+    @Test
+    fun `should reduce velocity over time`() {
         val player =
             world.createEntity()
                 .add(Position(0f, 0f))
@@ -25,7 +40,7 @@ class FrictionSystemTest {
                 .add(Velocity(100f, 0f))
                 .add(Friction(0.01f)) // near to null friction
 
-        world.update(1f) // 1 second after...
+        world.update(1f)
 
         assertEquals(90f, player.get<Velocity>()!!.x, 0.01f)
         assertEquals(99f, iceCube.get<Velocity>()!!.x, 0.01f)

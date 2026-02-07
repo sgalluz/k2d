@@ -1,10 +1,19 @@
 package dev.sgalluz.k2d.rendering
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.runDesktopComposeUiTest
+import androidx.compose.ui.unit.dp
 import dev.sgalluz.k2d.runtime.GameLoopClock
 import dev.sgalluz.k2d.runtime.compose.LocalGameLoopClock
 import kotlin.test.Test
@@ -42,5 +51,44 @@ class GameCanvasTest {
             runOnIdle {
                 assertTrue(renders > 1)
             }
+        }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun canvas_is_present_and_measured() =
+        runDesktopComposeUiTest {
+            setContent {
+                CompositionLocalProvider(
+                    LocalGameLoopClock provides FakeGameLoopClock(),
+                ) {
+                    k2dCanvas(onRender = {})
+                }
+            }
+
+            onNodeWithTag("k2d-canvas")
+                .assertExists()
+                .assertIsDisplayed()
+        }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun canvas_fills_parent() =
+        runDesktopComposeUiTest {
+            setContent {
+                CompositionLocalProvider(
+                    LocalGameLoopClock provides FakeGameLoopClock(),
+                ) {
+                    Box(Modifier.size(200.dp)) {
+                        k2dCanvas(
+                            modifier = Modifier.testTag("k2d-canvas"),
+                            onRender = {},
+                        )
+                    }
+                }
+            }
+
+            onNodeWithTag("k2d-canvas")
+                .assertWidthIsEqualTo(200.dp)
+                .assertHeightIsEqualTo(200.dp)
         }
 }
