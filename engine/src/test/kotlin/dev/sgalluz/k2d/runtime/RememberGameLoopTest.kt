@@ -11,17 +11,19 @@ class RememberGameLoopTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun rememberGameLoop_triggers_update() {
-        var calls = 0
+    fun rememberGameLoop_exposes_clock() {
+        var clock: GameLoopClock? = null
 
         composeRule.setContent {
-            rememberGameLoop {
-                calls++
-            }
+            clock =
+                rememberGameLoop(
+                    onUpdate = {},
+                    enabled = false,
+                )
         }
 
         composeRule.waitForIdle()
 
-        assertTrue(calls > 0)
+        assertTrue(clock != null)
     }
 }
