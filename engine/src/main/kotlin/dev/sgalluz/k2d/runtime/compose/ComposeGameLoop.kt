@@ -8,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import dev.sgalluz.k2d.core.GameLoop
 import dev.sgalluz.k2d.runtime.GameLoopClock
-import kotlinx.coroutines.NonCancellable.isActive
 
 suspend fun runGameLoop(
     gameLoop: GameLoop,
@@ -31,16 +30,13 @@ fun rememberGameLoop(
 
     if (enabled) {
         LaunchedEffect(Unit) {
-            // FIXME: code smell... Remove asap!!!
-            while (isActive) {
-                runGameLoop(
-                    gameLoop = gameLoop,
-                    emitFrame = { frameState.value = it },
-                    frameProvider = { onFrame ->
-                        withFrameNanos { onFrame(it) }
-                    },
-                )
-            }
+            runGameLoop(
+                gameLoop = gameLoop,
+                emitFrame = { frameState.value = it },
+                frameProvider = { onFrame ->
+                    withFrameNanos { onFrame(it) }
+                },
+            )
         }
     }
 
