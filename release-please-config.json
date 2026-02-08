@@ -1,6 +1,6 @@
 {
     "packages": {
-        "engine": {
+        ".": {
             "release-type": "java",
             "package-name": "engine",
             "initial-version": "0.1.0",
@@ -9,7 +9,7 @@
             "include-component-in-tag": false,
             "snapshot-label": "SNAPSHOT",
             "extra-files": [
-                "../gradle.properties"
+                "gradle.properties"
             ]
         }
     },
