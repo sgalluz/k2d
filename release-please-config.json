@@ -3,10 +3,14 @@
         "engine": {
             "release-type": "java",
             "package-name": "engine",
+            "initial-version": "0.1.0",
             "bump-minor-pre-major": true,
             "changelog-path": "CHANGELOG.md",
             "include-component-in-tag": false,
-            "snapshot-label": "SNAPSHOT"
+            "snapshot-label": "SNAPSHOT",
+            "extra-files": [
+                "gradle.properties"
+            ]
         }
     },
     "include-v-in-tag": true,

@@ -34,7 +34,7 @@ jobs:
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-        run: ./gradlew publishEnginePublicationToSonatypeRepository
+        run: ./gradlew publishEnginePublicationToSonatypeRepository --no-configuration-cache
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

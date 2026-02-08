@@ -42,3 +42,6 @@ jobs:
     with:
       job-name: "Publish Engine SNAPSHOT"
       task: "publishEnginePublicationToSonatypeRepository"
+    secrets:
+      OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+      OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}

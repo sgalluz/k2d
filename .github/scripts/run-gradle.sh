@@ -8,5 +8,8 @@ TASKS=$(printf ':engine:%s ' $CLEAN_TASKS)
 
 [[ "$CLEAN_TASKS" == *"test"* ]] && TASKS=":engine:cleanTest $TASKS"
 
-echo "Executing: ./gradlew $TASKS --build-cache --configuration-cache"
-./gradlew $TASKS --build-cache --configuration-cache
+OPTS="--build-cache"
+[[ "$CLEAN_TASKS" != *"publish"* ]] && OPTS="$OPTS --configuration-cache"
+
+echo "Executing: ./gradlew $TASKS $OPTS"
+./gradlew $TASKS $OPTS
